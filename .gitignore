@@ -1,0 +1,55 @@
+# Unity 生成目录：由编辑器重建，不入库
+/Library/
+/Temp/
+/Obj/
+/UserSettings/
+/MemoryCaptures/
+/Recordings/
+
+# 构建与日志：体积大且可重现
+/Builds/
+/Logs/
+
+# 参考素材与缓存：非工程必需，长期积累体积巨大
+/Reference/
+/ResourceCache/
+/Server/
+
+# 重构期间快照：仅本地保留，不入库
+/Backup/
+
+# Codely 与协作工具的本地包缓存
+/.codely.packages/
+/.codex/
+
+# 版署反馈等大体积办公文件
+*.xlsx
+*.xls
+*.doc
+*.docx
+*.pdf
+
+# 编辑器与 IDE
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Unity 崩溃与临时产物
+sysinfo.txt
+crashlytics-build.properties
+/[Aa]ssets/[Aa]ssetStoreTools*
+/[Aa]ssets/[Pp]lugins?/[Ee]ditor/JetBrains*

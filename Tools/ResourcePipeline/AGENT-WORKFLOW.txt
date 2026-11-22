@@ -1,0 +1,84 @@
+古墟大陆三角色工作流（2026-11-10）
+
+一、入口与职责
+游戏设计师统筹设计、优先级、试玩和验收；开发程序员负责代码、配置、资源接入、技术自测和打包；美术设计师负责按规格使用 Image 2.6 生成并交付缓存。
+调用使用项目 .codex/agents 下的 game_designer / game_developer / art_designer。
+文本代理继承父模型；Image 2.6 是网页生成图像时的选项。
+用户确认后的具体任务是执行范围。规划请求不生成图、不改生产代码；角色建立本身不启动新的游戏优化。
+
+二、每轮开发任务
+游戏设计师在 Design/ITERATIONS.md 新建记录：
+- id、用户目标、范围、当前状态、负责人/实际 agent ID。
+- 设计说明、优先级、验收标准、所需资源、目标平台/是否需要本轮构建。
+- 代码及资源归属、证据目录、未验证项和已知限制。
+任务状态：planned -> implementing -> technical-verified -> experience-accepted -> delivered。
+blocked 保留具体原因、已完成部分和下一步；返工回到 implementing，不能因为代理结束就标记完成。
+状态适用于本轮约定范围；若安装包是验收要求，delivered 前必须有可核验产物，否则保留阻塞/部分完成。无需构建的任务明确写 not-requested。
+
+三、资源请求与缓存
+开发程序员选取唯一批次，如 ResourceCache/20261110-OpeningSkip-r01/；返工使用 r02 等新批次，关联 replacesBatch，禁止覆盖旧 raw。
+目录中使用既有文件：prompt.txt、raw/、manifest.json、processed/、receipt.json、pipeline-report.json、backups/。
+新增的 request.json 由开发程序员填写后交给美术师。它是需求说明，不替代现有 manifest，也不由 pipeline.ps1 解析。
+request.json 最小示例（按实际任务填写，不能把示例当待执行任务）：
+{
+  "id": "20261110-OpeningSkip-r01",
+  "iterationId": "ITER-EXAMPLE",
+  "purpose": "开场动画跳过按钮底图",
+  "requestedModel": "Image 2.6",
+  "generatorUrl": "https://platform.openai.com/playground/images",
+  "references": ["ResourceCache/OpeningSkip20261110/button-in-game.png"],
+  "assets": [{
+    "key": "button-story-skip",
+    "displaySize": [162, 52],
+    "outputSize": [324, 104],
+    "alpha": "transparent",
+    "textPolicy": "底图无字；Unity 显示跳过动画",
+    "target": "Resources/Game/Guxu/Expansion/UI/button-story-skip.png",
+    "acceptance": ["匹配青玉古铜风格", "真实透明背景", "缩小后边框清楚且文字留白充足"]
+  }]
+}
+生成尺寸按网页实际支持和构图选择并记录，不把母版尺寸直接当工程尺寸。参考路径相对项目根；manifest 的 source 相对 raw、output 相对 processed、target 相对 Assets，不能混用。
+
+四、美术交付
+1. 读取需求和项目参考画面，确认构图、规格与文字策略；复用满足要求的现有资源时记录真实来源。
+2. 在指定 Playground 页面确认 Image 2.6、尺寸、透明背景和输出格式。历史模型名称 gpt-image-2.6-sunburst 不是本次实际选项的证据；不可见/不可用时向调用方报告。
+3. 保存完整提示词，使用正常生成与 Download。系统下载目录仅作中转，将本次确切原图复制至 raw，并记录 SHA256。
+4. 检查真实 alpha、边缘、构图、伪文字、风格及目标显示尺寸下的可读性，保存预览。raw 不编辑，裁切缩放通过现有管线写 processed。
+5. manifest 沿用 schemaVersion=1；generator 增记 requestedModel、modelObserved、size、background、format、promptFile。modelObserved 只写实际观测值。
+6. receipt 保留来源、时间、文件及哈希、实际参数、检查结果和缺项。阶段可写 art-ready / blocked；另设 artStatus=ready/blocked，integrationStatus=pending，tests 和 build 留给开发交付。
+7. 只有文件实际存在且规格/质量已检查才交付 art-ready。美术不运行 -Import，不写 Assets/ProjectSettings，不调用 Unity 导入、测试和打包。
+8. 返回批次、manifest、原图和预览绝对路径及限制；开发程序员通过 followup_task 发送具体返工意见。不要无限重生成，反复失败要说明原因。
+
+五、开发接入
+1. 核对需求与真实缓存，检查 manifest、尺寸/alpha/哈希和目标路径，确认与工程现有资源键兼容。
+2. 在 PowerShell 7 中运行：
+   ./Tools/ResourcePipeline/pipeline.ps1 -Manifest ./ResourceCache/<批次>/manifest.json
+   预览及检查通过后运行：
+   ./Tools/ResourcePipeline/pipeline.ps1 -Manifest ./ResourceCache/<批次>/manifest.json -Import
+3. 管线生成 pipeline-report.json；prepared 仅代表处理完成，copied-awaiting-unity-validation 仅代表已复制。不要把这两个状态当 Unity 验收通过；复制部分失败按报告及备份恢复/重跑。
+4. 在 Unity 刷新、编译和运行相关页面，核对 TextureImporter、引用、实际尺寸、透明度、交互和控制台。保留 .meta/GUID，沿用现有导入器。
+5. receipt 增记 integrationStatus、技术测试证据、体验验收证据、构建状态及时间；完整交付后 status=complete。pipeline-report 保留真实处理结果，Unity 验收另用证据链接说明，不伪造管线自动完成的检查。
+6. 新老缓存兼容：旧 receipt 的 status=complete 只能证明其当时说明的范围；缺少 modelObserved 或新字段不得猜填。复用时记录 review 和 reusedFrom，不能把旧证据改成今天新生成。
+
+六、测试与试玩
+开发程序员承担技术自测，游戏设计师承担体验验收。两者轮流使用同一 Unity 实例，开始前交接 Play/场景/测试数据状态，结束后恢复。
+根据变更选用现有菜单，执行前核对源码或实际菜单及所需 Play/登录前置条件：
+- GXDL/QA/Guxu Rules（玩法规则）
+- GXDL/QA/Iteration Full Runtime、GXDL/QA/Iteration Presentation（玩法回归与竖屏表现）
+- GXDL/Accounts/Validate Account Rules、GXDL/Accounts/Verify Entry Flow（登录与进入流程）
+- Guxu/QA/Verify Opening Animation、Guxu/QA/Verify Loading Screen（开场与加载）
+- GXDL/Resources/Verify App Icon（打包图标）
+普通 Play 和构建默认登录；显式离线预览入口 GXDL/Accounts/Preview Gameplay (Offline) 仅供编辑器玩法检查。具体约束见 LOADING-FLOW-CONTRACT.txt。
+每项体验问题记录：问题ID、严重程度、环境、步骤、实际、期望、证据、建议、负责人、复测结果。验收必须包含实际交互，不能以阅读代码或截图冒充试玩。
+平衡模拟与玩家体验分开，记录模拟条件与固定种子；不把加速模拟进度当真人游戏时长。涉及存档的测试隔离或备份恢复，校验原存档未被破坏。
+
+七、构建与交付
+现有入口：GXDL/Build Windows Preview；GXDL/Build Android APK。每次检查当前构建源码与平台环境，不把历史包当本轮产物。
+Android 使用 GuxuAccountBuildCheck 校验账号配置与包名，GuxuAppIcon 校验图标；SDK/NDK/JDK、签名或真实接入缺失时记录阻塞，不移除检查。
+构建交付包含平台、版本、时间、绝对路径、字节大小、SHA256、BuildReport 结果和日志。BuildReport 成功后还要核对实际文件；安装运行和真机测试另列。
+达到本轮标准后由设计师汇总交付，未处理建议进入待办；不自动无限优化。若当前请求仅配置角色，本轮无需重新生图或打包。
+
+八、配置与调用验证
+官方格式依据：https://learn.chatgpt.com/docs/agent-configuration/subagents
+每个项目角色 TOML 必须有 name、description、developer_instructions，不设置父会话权限、提供商或 MCP 覆盖。角色职责边界是协作约定，不是独立操作系统沙箱。
+验证分别记录：TOML解析/引用完整性；实际 agent_type 调用；交接样本检查。默认代理读取角色文件只算模拟，不算该角色已注册。若当前会话未加载新角色，保留完整配置并在重新加载项目的新会话验证，不能假报成功。

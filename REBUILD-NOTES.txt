@@ -1,0 +1,61 @@
+寻道大千 Unity 本地重写第一版
+工程：G:/demos/gxdl
+Unity：2022.3.62f3c1 / UGUI / C# / Newtonsoft JSON
+
+运行
+打开 Assets/Scenes/GxdlMain.unity，点击 Play。
+砍树按钮消耗仙桃，播放原角色动作并掉落装备；选择替换或分解。
+自动砍树会自动替换评分更高的装备，其余分解。修为满后点击渡劫。
+冒险入口打开关卡，挑战后进行最多 15 回合的本地战斗，可调整速度。
+幻境阁提供三个已缓存外观的本地试穿。进度自动保存到 Unity persistentDataPath/gxdl-local-v1.json。
+GXDL/Validate Rules 执行规则检查；运行模式下 GXDL/QA/Smoke Test 验证砍树、替换、外观与存档。
+
+资源与配置证据
+原小游戏 AppID：wx09a75a3a7bb79b59；本地缓存版本 267。
+资源 CDN 版本标识：4.2.00.776.Taqp94；配置 CONFIG_VERSION：4.2.9698。
+主脚本 SHA256：b50a7bdcd3cf3327d064ac031aa27ed3bdd9eb1fa49f0e626639ee0f38a1ab12。
+已解密 4 个 wxapkg，提取 2533 个脚本模块、193 张配置表（含 54301 条原文案）。
+原资源使用 Cocos / FairyGUI / Spine 3.8.99。运行版复用原背景、神树、角色、敌人、装备、UI 图块、字体与音乐。
+Spine 骨骼按原始动画采样为 15 FPS 图集；静态神树和背景取原始姿态。没有把视频帧作为运行画面。
+运行配置 OriginalConfig.json 保存原表字段；当前选用前 100 个境界、关卡、怪物等级，前 20 级神树和本地可用装备图标。
+全部原始表仍保留在 G:/learn/gxdl-analysis/tables，缓存 URL 与 SHA256 在 cache-inventory.json。
+
+REA
+REA 6.8.0 已通过真实 MCP 调用；229 个工具。当前聊天若未热加载，则通过同一安装的本地 MCP 客户端调用。
+整包主脚本分析触及 2048 MiB 上限，该部分证据单独保存在 rea-bundle-partial-result.json，不作为完整分析。
+随后静态截取 14 个核心模块进行 REA 分析，原始字节位置和文件摘要在 rea-focus/provenance.json。
+完整 Evidence：G:/learn/gxdl-analysis/rea-focus-evidence.json。
+父 Evidence：ev_1506eabea0ed6d17b663c8ae78db927c8a5dc3b3a5a3c2e9e17a21cfbec2ab76。
+此为静态分析，动态引用、别名和部分关系仍有 unknown，不代表完全还原服务器或执行行为。
+
+确认与重写边界
+PlayerAttributeMgr.reqOpenBoxMsg 调用 S_ATTRIBUTE_DREAM_MSG；reqDealTreasureMsg 调用 S_ATTRIBUTE_EQUIPMENT_DEAL_MSG；突破调用 S_ATTRIBUTE_REALMS_LEVE_UP_MSG。
+因此原版掉落、装备处理与突破包含服务端结算，不能把缓存里的展示代码认定为全部服务端规则。
+已复用 EquipmentCreateDB.quality 品质权重、RealmsDB 基础属性和修为、GameStageDB 关卡与奖励、MonstersDB/MonstersLevelDB 怪物属性。
+本地补写：装备属性生成、装备评分/战力、分解收益、暴击概率和伤害结算；神树升级直接完成，未使用原版升级倒计时。
+所有关卡暂使用已缓存的守卫动画；其他怪物数值仍按关卡原配置，缺少的外观未从网络补齐。
+未实现原服务器联网、付费/广告、妖盟、灵兽/精怪/法宝养成及完整活动系统。相关入口提示当前可用范围。
+本版是视频核心流程的离线可玩重写，不是完整商业版本的一比一复刻。
+
+验证结果
+Windows 试玩：Builds/Windows/Gxdl.exe。本轮构建 Succeeded，0 错误、0 警告。
+规则检查、砍树/替换/存档冒烟检查、胜利推进检查通过；Windows 后台启动日志未发现 Exception/Error。
+验证文件：Logs/gxdl-smoke-test.txt、Logs/gxdl-victory-test.txt、Logs/gxdl-build.json。
+
+2026-11-02 视频对照优化
+复用原 expEffect / lvUpEffect 图集，补充经验流光、装备替换闪光、突破光效。
+添加砍树命中震动、修为/分解收益飘字、弹窗入场、战斗受击位移/变色、伤害飘字和血条过渡。
+战斗倍速同步角色播放速度与按钮文字；调整双方站位，添加双方属性栏。
+用 screenVersion 丢弃离开界面后的旧战斗/砍树协程，避免旧结算污染新界面。
+本轮规则、Effects Test、Smoke Test、Victory Test 均通过，控制台无错误。
+Effects Test 恢复测试前存档，检查重复点击只扣一次仙桃、x2 动画速度、取消战斗不推进关卡。
+原视频仅用于效果与节奏参照，不声称逐帧一致；角色仍使用 15 FPS 原动画采样图集，未验证手机真机性能。
+2026-11-02 装备分解反馈修正
+手动分解、替换旧装备及自动砍树共用 ResolveDrop 结算展示。立即保存真实奖励，动画只改变显示数字，不负责发奖。
+复用 ItemIcon/100003_s：8 个灵石先散落，再飞向顶部图标，顶部余额随收集滚动增加。
+GXDL/QA/Disassemble Test 使用真实分解按钮验证单次结算、重复点击、装备不变、掉落物、顶部余额和存档，以及自动砍树连续运行。
+2026-11-02 掉落轨迹视频校正
+对照原视频 44.3-45.6 秒，并检查缓存 GoodsFallingEffect.js / GoodsFallingEffectMgr.js。
+改为树根与角色间的起点，左右抛散、CircOut 上升、CircIn 下落、半高度和两成高度两次弹跳，再进行 0.3 秒快速收集与 0.15 秒淡出。
+采用原代码 300 速度、30-80 上抛高度、30-60 落差、30-110 左右距离及默认 10 个粒子；主场景起点按本版布局校准。避免声称逐帧相同。
+Logs/gxdl-trajectory-test.txt 验证阶段位置；分解专项测试确认 10 个掉落物、余额与存档一致、自动连续砍树。

@@ -1,0 +1,16 @@
+古墟大陆本轮协作交付
+依据：G:/okr/output/guxu/古墟大陆玩法参考与包装方案.docx；用户主界面效果图；原视频 screenshot_2026-11-01_13-57-39.mp4。
+主线为封灵古石与飞剑破封，分解资源为灵尘，保留当前玩家进度。背景、白发角色、古石、飞剑和动态UI分别绘制。
+动画智能体：GuxuAnimation.cs，独立呼吸/施法、蓄力、飞剑、碎裂和遗宝显现。角色为单精灵程序变换，并非骨骼动画。
+道具/UI智能体：GuxuUiArt.cs 和 Game/Guxu/UI、Items，下发统一青玉古铜暖金仙侠魔幻素材，无字按钮与实时文字分离。
+关卡智能体：GuxuStageRules.cs、Stages.json、Guardians；三遗址九关、最多15回合、连击/恢复/反击，5400场固定种子平衡模拟详见balance-check.csv。
+主智能体：主界面、玩法和存档兼容接入、EquipmentTiers.json、真实按钮与截图验收、Windows构建。
+装备仅白/绿/蓝/紫/橙，每品质I/II/III，共15档，12部位共享档位基础数值。
+来源EquipmentAdvanceDB row1：attack71 hp474 def12。本地映射 round(原强化增量 * 0.1 * 档位1..15)；speed原表无值设0。原EquipmentDB没有掉落基础属性，原掉落服务端数值尚未取得，这15档不是原版服务端逐项复刻。
+旧装备首次迁移前保留存档副本后缀.before-equipment15；货币、修为和关卡进度不重置。
+自动规则：品质达到保留阈值或战力提升则暂停，由玩家选择装备/分解；其余自动分解，绝不默认替换。
+新增测试入口GXDL/QA/Guxu Rules及Guxu Integration，结果写Logs/guxu-rules.txt、guxu-integration.txt。
+边界：伙伴、宗门为未开放入口；三遗址共享同一背景/守护者基型；遗址差异体现在敌方战斗特性，装备副词条尚未实现。
+最终Unity验收：Guxu Rules与Guxu Integration通过；不规则18片石壳和符环已截图复验；真实按钮、自动不替换、分解到账与存档、战斗中途退出、胜利结算通过。
+Windows构建 Succeeded，0 errors / 0 warnings；最新入口 Builds/Windows/Gxdl.exe。
+动画角色目前为独立单精灵程序变换，尚非骨骼/手绘逐帧；手机真机性能未验证。

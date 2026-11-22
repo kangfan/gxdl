@@ -1,0 +1,132 @@
+{
+  "sourceTable": "EquipmentAdvanceDB",
+  "sourceRow": 1,
+  "sourceSha256": "09021aab64c3cd9f4cbd40c7a8a1b7d1da801b61818bfed95ff6699998df92c0",
+  "sourceAttack": 71,
+  "sourceHp": 474,
+  "sourceDefense": 12,
+  "sourceScale": 0.1,
+  "derivation": "Local 15-rank compression: round(original upgrade increment * 0.1 * rank). This is not original server drop stats. Speed absent from source, set 0.",
+  "tiers": [
+    {
+      "quality": 1,
+      "level": 1,
+      "attack": 7,
+      "hp": 47,
+      "defense": 1,
+      "speed": 0
+    },
+    {
+      "quality": 1,
+      "level": 2,
+      "attack": 14,
+      "hp": 95,
+      "defense": 2,
+      "speed": 0
+    },
+    {
+      "quality": 1,
+      "level": 3,
+      "attack": 21,
+      "hp": 142,
+      "defense": 4,
+      "speed": 0
+    },
+    {
+      "quality": 2,
+      "level": 1,
+      "attack": 28,
+      "hp": 190,
+      "defense": 5,
+      "speed": 0
+    },
+    {
+      "quality": 2,
+      "level": 2,
+      "attack": 36,
+      "hp": 237,
+      "defense": 6,
+      "speed": 0
+    },
+    {
+      "quality": 2,
+      "level": 3,
+      "attack": 43,
+      "hp": 284,
+      "defense": 7,
+      "speed": 0
+    },
+    {
+      "quality": 3,
+      "level": 1,
+      "attack": 50,
+      "hp": 332,
+      "defense": 8,
+      "speed": 0
+    },
+    {
+      "quality": 3,
+      "level": 2,
+      "attack": 57,
+      "hp": 379,
+      "defense": 10,
+      "speed": 0
+    },
+    {
+      "quality": 3,
+      "level": 3,
+      "attack": 64,
+      "hp": 427,
+      "defense": 11,
+      "speed": 0
+    },
+    {
+      "quality": 4,
+      "level": 1,
+      "attack": 71,
+      "hp": 474,
+      "defense": 12,
+      "speed": 0
+    },
+    {
+      "quality": 4,
+      "level": 2,
+      "attack": 78,
+      "hp": 521,
+      "defense": 13,
+      "speed": 0
+    },
+    {
+      "quality": 4,
+      "level": 3,
+      "attack": 85,
+      "hp": 569,
+      "defense": 14,
+      "speed": 0
+    },
+    {
+      "quality": 5,
+      "level": 1,
+      "attack": 92,
+      "hp": 616,
+      "defense": 16,
+      "speed": 0
+    },
+    {
+      "quality": 5,
+      "level": 2,
+      "attack": 99,
+      "hp": 664,
+      "defense": 17,
+      "speed": 0
+    },
+    {
+      "quality": 5,
+      "level": 3,
+      "attack": 107,
+      "hp": 711,
+      "defense": 18,
+      "speed": 0
+    }
+  ]
+}

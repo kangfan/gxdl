@@ -1,0 +1,43 @@
+登录后 Loading 界面对接约定（2026-11-10）
+
+2026-11-12 补充：专用测试 APK 登录页增加账号密码切换，三档体验账号通过相同 Loading → 首次开场 → 主界面流程。gxdl_new 为生产默认全新账号，无已看开场/首破封标记；中高账号仅首次导入按真实规则生成的进度，后续读取本账号落盘进度。三个 experience:v1 作用域彼此独立，且不沿用原 phone:v1 的开场记录。生产 Loading 与动画行为没有改变。
+
+2026-11-11 补充：用户授权专用 Android Phone Test APK 使用指定手机号与固定验证码。其一次性 GXDL_PHONE_TEST 编译开关仅由独立测试构建入口提供，应用包名带 .phonetest，且必须为 Development；普通构建保留正式认证。该测试账号仍执行真实 Loading → 首次开场 → 主界面，不跳过入场资源加载，存档与正式/编辑器测试账号隔离。此例外替代本文末尾“测试替身仅 UNITY_EDITOR”的绝对限制，不改变正常发布规则。
+
+当前状态：正式界面已在 Assets/Scripts/GuxuLoadingScreen.cs 实现以下接口。
+交付及正式界面验证说明：Reference/Loading20261110/交付说明.txt。
+无需重复添加接口实现；下文保留为接口维护约定。
+
+本会话负责 Assets/Scripts/GuxuEntryFlow.cs、GuxuAccountUI.cs 的流程段、GuxuHome.cs 的开场触发位置。
+Loading 界面会话请单独新增脚本和资源，不用改以上流程代码。
+
+在 Assets/Scripts 下创建同一命名空间、同一 partial 类的实现，例如 GuxuLoadingScreen.cs：
+
+namespace Gxdl {
+ public partial class GxdlGame {
+  partial void CreateEntryLoadingView(UnityEngine.RectTransform parent, ref IGuxuEntryLoadingView loadingView) {
+   // 在 parent 下构建 Loading 界面；可使用 GxdlGame 原有的 Art / Txt / Rect 等辅助方法。
+   // loadingView = 你创建的界面对象；该对象实现 IGuxuEntryLoadingView。
+  }
+ }
+}
+
+IGuxuEntryLoadingView 接口：
+ void SetProgress(float progress, string message)
+  progress 是 0..1，单调递增，来自真实配置、存档、入场资源加载步骤。
+  message 是阶段提示。界面可以平滑显示，但不得自行增加目标进度或调用 Home。
+ bool IsComplete { get; }
+  只在收到 progress == 1 且屏幕上的进度条已到 100% 后返回 true。
+  如有 Loading 收尾动效，也应等动效结束再返回 true；流程最多等 30 秒。
+
+父节点为 750 x 1334，已经 FitPage；所有界面对象和播放脚本应放在 parent 下。
+父节点由流程管理，完成或退出账号时自动隐藏并销毁，界面不自行切换页面。
+接口在 Unity 主线程调用。Begin 时立即 SetProgress(0)，资源就绪后 SetProgress(1)。
+编辑器每次登录都在 IsComplete 后清除 Loading、播放开场，再创建 Home，忽略已观看记录。
+打包版本保持首次进入播放开场；已观看账号直接 Home。不会删除或重置原有观看记录。
+自然播放完或主动跳过才写入已观看标记；中断不记完成；账号标记在本设备隔离。
+加载失败由流程统一显示重试/返回登录，界面无需自制错误弹窗。
+未实现 CreateEntryLoadingView 时流程会停留错误页，不会跳过 Loading 直接进游戏。
+
+普通编辑器 Play 和所有构建默认显示登录；只有 GXDL > Accounts > Preview Gameplay (Offline) 及显式玩法 QA 可以进入本次编辑器离线预览，退出 Play 后恢复登录入口。
+不要添加正式包免登录按钮。测试替身只在 UNITY_EDITOR 编译，不能用于真机认证。

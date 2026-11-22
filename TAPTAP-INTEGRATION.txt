@@ -1,0 +1,96 @@
+古墟大陆：TapTap 登录、独立短信注册登录、实名认证与防沉迷
+
+当前状态
+- 2026-11-12 专用测试 APK 0.1.4-ExperienceAccounts / versionCode 5 增加账号密码模式；gxdl_new、gxdl_mid、gxdl_high 的凭据仅在测试编译分支存在，并继续检查 Development 与专用包名。手机号方法及原 device-test:phone:v1 账号保持不变。体验账号作用域为 device-test:experience:v1:<profile> 的 SHA256，只有首次且该作用域不存在任何存档痕迹时导入；损坏/仅备份残留拒绝重新发放。全新号使用生产默认；中高按实际规则轨迹到主线待挑战80/160，达标后调用生产 RefreshDaily 模拟次日首登，四类副本每日剩余3次；首次导入映射当天，之后正常保存和自然跨日，不能重登刷新次数。详细凭据、轨迹账目及验证见 Reference/ExperienceAccounts20261112-r01。
+- 2026-11-11 用户授权的专用真机测试例外：GXDL > Build Android Phone Test APK 生成 Development 测试包，包名 com.localrebuild.guxudalu.phonetest、应用名“古墟大陆·测试”。仅此入口给玩家编译添加 GXDL_PHONE_TEST；不写入持久编译开关。手机号 13527645605 + 验证码 123456 可直接登录，不要求先获取短信，不请求短信后端和 TapTap 实名；错误号码/验证码拒绝。界面明确标注测试，进度使用独立测试账号作用域。普通 Build Android APK 仍要求完整正式配置及真实认证。
+- 上述测试例外仅供本次设备流程验证；下文“所有构建/Android 始终认证”的原有说明适用于普通构建入口，不代表此专用测试 APK 已通过真实短信或实名认证。
+- Unity Package Manager 已接入 TapSDK Core/Login/Compliance 4.11.1；EDM4U 1.2.190 管理原生依赖。
+- 普通 Unity Play、Windows 和 Android 启动均先显示账号页。用户同意协议后才能初始化 SDK、登录或发送短信。
+- TapTap 登录请求 basic_info，仅取稳定 openId；新玩家认证后建立本地游戏进度。
+- 手机号登录使用本项目 Server 中的独立账号服务和阿里云官方短信 SDK；首次验证自动注册。
+- 两种登录均需等待 TapTap 合规回调 500，才进入游戏；1000/1001/1030/1050/1100/1200/9002/-1 等回调撤销游戏权限并停止玩法协程。
+- 退出账号同时退出 TapTap 合规会话；等待退出回调后才允许下一次登录，超时要求重启，避免旧回调给新账号放行。
+- 不采集、不保存身份证号；实名认证由 TapTap SDK 界面完成。
+- 手机号只在内存中用于发短信和显示掩码，不写入客户端磁盘；手机号会话不跨应用重启保存，重开需重新验证。
+- TapTap 与手机号是两个独立账号。没有自动绑定、合并账号或云存档；同一人选择不同方式会有不同进度。
+
+一、取得 TapTap Client ID / Client Token
+1. 打开 https://developer.taptap.cn/ ，完成开发者入驻，创建或选择《古墟大陆》。
+2. 游戏服务 > 应用配置 > 立即开启；获取 Client ID、Client Token，地区选择中国大陆。
+3. 开通 TapTap 登录。游戏服务 > 基础服务 > 合规认证，按游戏实际情况选择已有/暂无版号并完成平台要求的配置。
+4. 登记 Android 包名和签名证书 MD5（32位，去掉冒号）。默认包名为 com.localrebuild.guxudalu；若使用正式包名，请同时修改 AccountConfig 和平台配置。
+5. 在 Assets/Resources/Game/AccountConfig.json 填入 clientId/clientToken。不要填写 Server Secret / Master Key。
+6. 填入真实可访问的 HTTPS 用户协议 termsUrl、隐私政策 privacyUrl 和 policyVersion。协议须说明 TapTap 认证与独立手机号服务的用途；版本或链接改变后重新征得同意。
+
+官方配置说明：https://developer.taptap.cn/docs/sdk/access/get-ready/
+Unity SDK：https://developer.taptap.cn/docs/sdk/integration-guides/unity/
+登录：https://developer.taptap.cn/docs/sdk/taptap-login/development-guide/unity/
+合规认证：https://developer.taptap.cn/docs/en/sdk/anti-addiction/development-guide/unity/
+
+二、部署独立短信账号服务
+运行环境：Node.js 24.x；单实例 Node 服务 + 本地 SQLite + HTTPS 反向代理。
+1. 在 Server 目录执行 npm ci --ignore-scripts。
+2. 将 .env.example 复制为 .env；生成并保存 AUTH_SECRET：
+   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+3. 在阿里云开通国内短信服务，创建通过审核的短信签名与验证码模板。模板变量为 code，文案有效期为5分钟。
+4. 创建仅有 SendSms 所需权限的 RAM 访问凭据，将服务端环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID、ALIBABA_CLOUD_ACCESS_KEY_SECRET、SMS_SIGN_NAME、SMS_TEMPLATE_CODE 填好。不要把这些值放入 Unity 项目或发到聊天里。
+5. 运行 npm start；监听 127.0.0.1:8080。按 Caddyfile.example 配置自己的域名、TLS 证书和反向代理。默认只接受可信本机代理传来的 HTTPS 请求；不要把 Node 端口直接暴露到公网。
+6. 在 AccountConfig 的 phoneApiBaseUrl 填 https://你的账号域名（不带 /v1/auth）。
+7. 将 .env 和 data/accounts.db 及 SQLite sidecar 文件作为服务端敏感数据管理。AUTH_SECRET 必须长期保持稳定并与数据库一同备份；更换会改变手机号哈希，导致已有账号无法按原手机号找回。
+
+阿里云官方 Node SDK：https://help.aliyun.com/zh/sms/developer-reference/using-typescript-openapi-example
+
+接口（均返回 JSON；错误包含 code/message/retryAfterSeconds）
+POST /v1/auth/sms/send {"phone":"中国大陆11位手机号"}
+ -> {"challengeId":"随机挑战ID","retryAfterSeconds":60}
+POST /v1/auth/sms/login {"phone":"...","code":"6位短信验证码","challengeId":"..."}
+ -> {"userId":"不透明UUID","accessToken":"会话凭据","expiresInSeconds":86400}
+GET /v1/auth/session，Authorization: Bearer <accessToken>
+ -> {"userId":"...","expiresInSeconds":剩余秒数}
+POST /v1/auth/logout，Authorization: Bearer <accessToken>，body {}
+ -> {}
+
+验证码由服务端安全随机生成，只保存带服务端密钥的 HMAC。5分钟过期、单次使用、最多5次错误；同号60秒间隔、每天10次，同IP每小时20次发送，全部服务每天最多1000次发送，同IP15分钟最多30次登录尝试。发送失败同样占用发送限额，防止重试放大费用。原始手机号、验证码和会话 token 不写入日志/数据库。SQLite 存储账号UUID、手机号HMAC、验证码HMAC、会话token HMAC、限流记录。
+当前只支持 +86 手机号。生产扩容到多实例/跨机房前，需要共享账号库和限流状态；大规模投放前应按运营需求加短信服务商风控或人机验证及告警。当前实现不含验证码测试后门，测试仅在自动化测试中替换短信发送器。
+
+三、Unity 预览、构建与验证
+- 普通 Unity Editor Play 和所有构建均先显示登录页。Android（包括 Development Build）始终要求账号认证；编辑器和 Windows 尚不能执行真实 TapTap 认证，不会因此跳过登录。
+- GXDL > Accounts > Preview Login：预览账号页，与普通 Play 的启动入口相同。
+- 临时编辑器测试：点击 Account Tap Login（TapTap 按钮）直接使用独立的 editor:tap-preview 本地测试账号，跳过协议、SDK 登录和实名认证，继续真实 Loading / 每次播放开场 / 主界面。测试进度与真实账号、原离线玩法存档隔离；重启后仍先显示登录页。此分支仅在 UNITY_EDITOR 编译，Windows/Android 构建继续真实认证。
+- GXDL > Accounts > Preview Gameplay (Offline)：仅编辑器可用的显式离线玩法预览；退出 Play 后自动恢复登录入口，不影响构建。需要玩法的 QA 菜单会显式启用本次离线预览。
+- GXDL > Accounts > Validate Account Rules：认证状态、限制回调、手机号、HTTPS 和账号存档隔离自检。
+- GXDL > Accounts > Verify Login Screen：校验入口拦截和输入框，截图及结果写入 Logs/accounts。
+- Server 目录 npm test：服务端逻辑和真实 HTTP 监听自检，不发送真实短信。
+- Android 包始终启用账号认证。配置不完整或包名不一致时，构建预检查会失败，不能生成一个假装能登录的发布包。
+- Assets > External Dependency Manager > Android Resolver > Force Resolve：解析 TapTap 的原生 Maven 依赖。
+- GXDL > Build Android APK 使用 AccountConfig 中的包名，并保留当前签名设置。测试签名和正式签名须分别与 TapTap 后台登记一致。
+- 此次针对 Android；iOS 和 TapTap PC 发布接入尚未配置，不能直接作为这些平台的发布版本。
+
+四、存档
+原 gxdl-local-v1.json 不移动、不覆盖，仍供 Editor 本地玩法预览使用。
+登录存档为 gxdl-account-<SHA256账号作用域>.json，开场/首破封标记也按账号区分。
+没有把旧本地存档自动分配给第一个登录账号；这是为了避免将设备共享进度错误地交给其他账号。
+
+五、外部配置完成后必须做的真机联调
+安装/未安装 TapTap 两种授权、取消/失败/重新登录；手机号新注册/老号登录/错码/过期/发送失败；未实名/成年/受限账号；游戏中途时间限制；切后台再回来；退出与账号切换；重启后的存档隔离。当前空配置不能完成这些外部验证，也没有部署线上服务或发送真实短信。
+
+六、登录后的入场流程（2026-11-10）
+真实账号登录及合规检查通过后，依次执行 Loading、首次开场、主界面。
+Loading 完成需要同时满足真实入场资源准备好、界面进度条显示到 100%。
+开场直接播放在独立画面上，结束后才创建主界面。编辑器每次登录都播放开场，忽略已观看记录；打包版本仍只在首次进入时自动播放。
+沿用本设备账号隔离的开场记录；自然播放结束或主动跳过记录完成，中断不记完成。
+开场右上角显示“跳过动画”按钮；点击后结束当前动画并进入主界面。编辑器再次登录仍播放开场。
+加载及开场期间公共游戏入口不可用；限制回调会终止入场并回到登录页。
+加载失败或协程被意外停止会显示重试/返回登录。
+正式 Loading 已通过 Assets/Scripts/GuxuLoadingScreen.cs 实现 CreateEntryLoadingView，接入既有登录流程；接口说明位于 LOADING-FLOW-CONTRACT.txt。
+进度条按真实资源目标平滑推进，到达 100% 并显示 0.35 秒后才进入开场或主界面。
+Guxu > QA > Verify Loading Screen 可验证正式界面与入场流程衔接，使用隔离账号门控替身，不请求 SDK 登录或短信；结果和截图见 Reference/Loading20261110。
+GXDL > Accounts > Verify Entry Flow 使用编辑器内账号状态和界面替身验证流程，不调用真实登录或短信服务。
+测试使用随机隔离账号，并在退出测试时清理对应临时存档和观看标记；结果见 Logs/accounts/entry-flow.txt。
+普通 Play 不再跳过登录。只有显式的编辑器离线玩法预览可以直接进入玩法；账号入口始终走入场流程。
+
+本轮验证记录
+- Server 自动化测试 7/7 通过，见 Logs/accounts/server-tests.txt。
+- Unity 认证规则及登录 UI 检查通过，见 Logs/accounts/rules.txt、login-ui.txt、login-screen.png。
+- Android 全部游戏 C# 源码（含非 Editor 的 SDK 初始化代码）使用 Unity 自带 Roslyn 及 Unity 生成的 Android response 文件独立编译通过，见 Logs/accounts/android-final-verification.txt。
+- Unity PlayerBuildInterface 编译曾通过；后续重复验证在 Bee 构建阶段中断，保留失败记录 android-compile.txt，没有将其当作完整 Android 构建通过。最终独立 C# 编译退出码为0。尚未验证 Gradle 原生依赖链接、签名 APK、真机或线上服务。

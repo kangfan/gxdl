@@ -1,0 +1,862 @@
+{
+  "frost-moon-boss/frame-6": [
+    0.5644531,
+    0.0390625
+  ],
+  "thunder-marsh-boss/frame-4": [
+    0.5458515,
+    0.12227076
+  ],
+  "ember-forge-boss/frame-9": [
+    0.48618785,
+    0.06353593
+  ],
+  "sunken-swords-boss/frame-4": [
+    0.5439189,
+    0.0440678
+  ],
+  "venom-hollow-boss/frame-16": [
+    0.50873363,
+    0.11353713
+  ],
+  "thunder-marsh-boss/frame-9": [
+    0.49126637,
+    0.004366815
+  ],
+  "venom-hollow-boss/frame-11": [
+    0.5065502,
+    0.11353713
+  ],
+  "void-palace-boss/frame-7": [
+    0.57421875,
+    0.04296875
+  ],
+  "thunder-marsh-boss/frame-14": [
+    0.15720524,
+    0.004366815
+  ],
+  "verdant-ruins-boss/frame-3": [
+    0.51104975,
+    0.041436493
+  ],
+  "nether-court-boss/frame-4": [
+    0.546875,
+    0.04296875
+  ],
+  "venom-hollow-boss/frame-17": [
+    0.5065502,
+    0.11790395
+  ],
+  "venom-hollow-boss/frame-28": [
+    0.558952,
+    0.12227076
+  ],
+  "thunder-marsh-boss/frame-5": [
+    0.38209608,
+    0.11353713
+  ],
+  "frost-moon-boss/frame-17": [
+    0.56640625,
+    0.0390625
+  ],
+  "thunder-marsh-boss/frame-8": [
+    0.46724892,
+    0.004366815
+  ],
+  "frost-moon-boss/frame-20": [
+    0.546875,
+    0.03515625
+  ],
+  "thunder-marsh-boss/frame-21": [
+    0.51965064,
+    0.17467248
+  ],
+  "venom-hollow-boss/frame-10": [
+    0.55458516,
+    0.10917032
+  ],
+  "frost-moon-boss/frame-4": [
+    0.56640625,
+    0.03125
+  ],
+  "sunken-swords-boss/frame-10": [
+    0.5168919,
+    0.043918908
+  ],
+  "venom-hollow-boss/frame-20": [
+    0.5,
+    0.11790395
+  ],
+  "thunder-marsh-boss/frame-11": [
+    0.40393013,
+    0.15720522
+  ],
+  "frost-moon-boss/frame-3": [
+    0.5253906,
+    0.03515625
+  ],
+  "verdant-ruins-boss/frame-7": [
+    0.52348065,
+    0.055248618
+  ],
+  "sunken-swords-boss/frame-16": [
+    0.48986486,
+    0.037162185
+  ],
+  "void-palace-boss/frame-9": [
+    0.49804688,
+    0.04296875
+  ],
+  "venom-hollow-boss/frame-21": [
+    0.5065502,
+    0.10917032
+  ],
+  "frost-moon-boss/frame-14": [
+    0.55078125,
+    0.00390625
+  ],
+  "void-palace-boss/frame-8": [
+    0.49804688,
+    0.04296875
+  ],
+  "nether-court-boss/frame-18": [
+    0.578125,
+    0.046875
+  ],
+  "void-palace-boss/frame-10": [
+    0.5410156,
+    0.04296875
+  ],
+  "ember-forge-boss/frame-3": [
+    0.4654696,
+    0.066298366
+  ],
+  "thunder-marsh-boss/frame-13": [
+    0.5633188,
+    0.1484716
+  ],
+  "thunder-marsh-boss/frame-22": [
+    0.5524017,
+    0.17467248
+  ],
+  "verdant-ruins-boss/frame-4": [
+    0.5469613,
+    0.046961308
+  ],
+  "ember-forge-boss/0": [
+    0.52910686,
+    0.031897902
+  ],
+  "frost-moon-boss/frame-15": [
+    0.5410156,
+    0.0390625
+  ],
+  "void-palace-boss/frame-18": [
+    0.56640625,
+    0.04296875
+  ],
+  "venom-hollow-boss/frame-14": [
+    0.510917,
+    0.11353713
+  ],
+  "frost-moon-boss/frame-22": [
+    0.55078125,
+    0.03515625
+  ],
+  "nether-court-boss/frame-11": [
+    0.578125,
+    0.046875
+  ],
+  "ember-forge-boss/frame-6": [
+    0.53038675,
+    0.13259667
+  ],
+  "thunder-marsh-boss/frame-28": [
+    0.48689955,
+    0.14410478
+  ],
+  "star-desert-boss/frame-14": [
+    0.58203125,
+    0.09375
+  ],
+  "nether-court-boss/frame-14": [
+    0.5566406,
+    0.00390625
+  ],
+  "frost-moon-boss/frame-19": [
+    0.5566406,
+    0.03515625
+  ],
+  "venom-hollow-boss/frame-2": [
+    0.59388644,
+    0.10043669
+  ],
+  "frost-moon-boss/frame-0": [
+    0.5625,
+    0.03515625
+  ],
+  "sunken-swords-boss/0": [
+    0.5235247,
+    0.011164248
+  ],
+  "star-desert-boss/frame-8": [
+    0.5097656,
+    0.08984375
+  ],
+  "star-desert-boss/frame-5": [
+    0.5332031,
+    0.09765625
+  ],
+  "frost-moon-boss/frame-18": [
+    0.5625,
+    0.0390625
+  ],
+  "venom-hollow-boss/frame-18": [
+    0.5043668,
+    0.11790395
+  ],
+  "venom-hollow-boss/frame-22": [
+    0.50873363,
+    0.10917032
+  ],
+  "frost-moon-boss/frame-13": [
+    0.5625,
+    0.03515625
+  ],
+  "sunken-swords-boss/frame-2": [
+    0.49155405,
+    0.040677965
+  ],
+  "thunder-marsh-boss/frame-3": [
+    0.5152838,
+    0.11790395
+  ],
+  "thunder-marsh-boss/frame-23": [
+    0.3951965,
+    0.17030567
+  ],
+  "sunken-swords-boss/frame-1": [
+    0.5472973,
+    0.033898294
+  ],
+  "nether-court-boss/frame-8": [
+    0.51171875,
+    0.05078125
+  ],
+  "venom-hollow-boss/frame-0": [
+    0.5043668,
+    0.11353713
+  ],
+  "venom-hollow-boss/frame-6": [
+    0.5043668,
+    0.11353713
+  ],
+  "star-desert-boss/frame-18": [
+    0.52734375,
+    0.08984375
+  ],
+  "star-desert-boss/frame-16": [
+    0.5703125,
+    0.09765625
+  ],
+  "black-armour-boss/frame-6": [
+    0.8466851,
+    0.06077349
+  ],
+  "venom-hollow-boss/frame-25": [
+    0.5021834,
+    0.10917032
+  ],
+  "frost-moon-boss/frame-9": [
+    0.546875,
+    0.03515625
+  ],
+  "void-palace-boss/frame-5": [
+    0.5214844,
+    0.0390625
+  ],
+  "sunken-swords-boss/frame-0": [
+    0.5237288,
+    0.033898294
+  ],
+  "verdant-ruins-boss/frame-5": [
+    0.5441989,
+    0.04419887
+  ],
+  "void-palace-boss/frame-12": [
+    0.56640625,
+    0.04296875
+  ],
+  "void-palace-boss/frame-19": [
+    0.5332031,
+    0.04296875
+  ],
+  "venom-hollow-boss/frame-29": [
+    0.5065502,
+    0.11353713
+  ],
+  "verdant-ruins-boss/frame-6": [
+    0.5414365,
+    0.046961308
+  ],
+  "venom-hollow-boss/frame-7": [
+    0.56550217,
+    0.10917032
+  ],
+  "void-palace-boss/frame-2": [
+    0.5410156,
+    0.0390625
+  ],
+  "nether-court-boss/frame-2": [
+    0.5097656,
+    0.046875
+  ],
+  "frost-moon-boss/frame-23": [
+    0.5722656,
+    0.0390625
+  ],
+  "venom-hollow-boss/frame-26": [
+    0.5349345,
+    0.12227076
+  ],
+  "thunder-marsh-boss/frame-2": [
+    0.51310045,
+    0.12227076
+  ],
+  "verdant-ruins-boss/frame-8": [
+    0.519337,
+    0.055248618
+  ],
+  "thunder-marsh-boss/frame-18": [
+    0.4628821,
+    0.17030567
+  ],
+  "void-palace-boss/frame-21": [
+    0.5,
+    0.04296875
+  ],
+  "ember-forge-boss/frame-10": [
+    0.45718232,
+    0.06077349
+  ],
+  "venom-hollow-boss/frame-3": [
+    0.52401745,
+    0.1048035
+  ],
+  "thunder-marsh-boss/frame-10": [
+    0.6266376,
+    0.17030567
+  ],
+  "star-desert-boss/frame-23": [
+    0.53125,
+    0.08984375
+  ],
+  "sunken-swords-boss/frame-3": [
+    0.5372881,
+    0.054237306
+  ],
+  "frost-moon-boss/frame-5": [
+    0.5546875,
+    0.03515625
+  ],
+  "thunder-marsh-boss/frame-17": [
+    0.40174672,
+    0.14410478
+  ],
+  "sunken-swords-boss/frame-17": [
+    0.5253378,
+    0.043918908
+  ],
+  "sunken-swords-boss/frame-8": [
+    0.41554055,
+    0.0033783913
+  ],
+  "venom-hollow-boss/frame-13": [
+    0.51310045,
+    0.11790395
+  ],
+  "frost-moon-boss/frame-2": [
+    0.54296875,
+    0.03125
+  ],
+  "verdant-ruins-boss/frame-2": [
+    0.52348065,
+    0.04419887
+  ],
+  "ember-forge-boss/frame-4": [
+    0.42679557,
+    0.0027624369
+  ],
+  "frost-moon-boss/frame-10": [
+    0.55859375,
+    0.03515625
+  ],
+  "thunder-marsh-boss/frame-27": [
+    0.44104803,
+    0.13973796
+  ],
+  "star-desert-boss/frame-11": [
+    0.55078125,
+    0.09375
+  ],
+  "nether-court-boss/frame-22": [
+    0.5703125,
+    0.046875
+  ],
+  "sunken-swords-boss/frame-14": [
+    0.5236486,
+    0.040540516
+  ],
+  "nether-court-boss/frame-13": [
+    0.54296875,
+    0.04296875
+  ],
+  "verdant-ruins-boss/0": [
+    0.511563,
+    0.051036656
+  ],
+  "frost-moon-boss/frame-11": [
+    0.5644531,
+    0.03515625
+  ],
+  "sunken-swords-boss/frame-9": [
+    0.47118643,
+    0.043918908
+  ],
+  "sunken-swords-boss/frame-11": [
+    0.5253378,
+    0.040540516
+  ],
+  "star-desert-boss/frame-12": [
+    0.52734375,
+    0.08984375
+  ],
+  "nether-court-boss/frame-15": [
+    0.50390625,
+    0.05078125
+  ],
+  "venom-hollow-boss/frame-1": [
+    0.5218341,
+    0.1048035
+  ],
+  "void-palace-boss/frame-15": [
+    0.5058594,
+    0.04296875
+  ],
+  "black-armour-boss/frame-10": [
+    0.47513813,
+    0.04419887
+  ],
+  "void-palace-boss/frame-11": [
+    0.5253906,
+    0.0390625
+  ],
+  "black-armour-boss/frame-1": [
+    0.43508288,
+    0.04419887
+  ],
+  "black-armour-boss/frame-7": [
+    0.51519334,
+    0.055248618
+  ],
+  "thunder-marsh-boss/frame-25": [
+    0.58078605,
+    0.13537121
+  ],
+  "venom-hollow-boss/frame-4": [
+    0.50873363,
+    0.1048035
+  ],
+  "thunder-marsh-boss/frame-16": [
+    0.48253274,
+    0.1310044
+  ],
+  "venom-hollow-boss/frame-5": [
+    0.5065502,
+    0.10917032
+  ],
+  "star-desert-boss/frame-1": [
+    0.53515625,
+    0.08984375
+  ],
+  "black-armour-boss/frame-0": [
+    0.45165744,
+    0.041436493
+  ],
+  "nether-court-boss/frame-0": [
+    0.578125,
+    0.046875
+  ],
+  "void-palace-boss/frame-20": [
+    0.5019531,
+    0.046875
+  ],
+  "thunder-marsh-boss/frame-19": [
+    0.5960699,
+    0.1790393
+  ],
+  "void-palace-boss/frame-17": [
+    0.51171875,
+    0.0390625
+  ],
+  "sunken-swords-boss/frame-6": [
+    0.5271186,
+    0.040540516
+  ],
+  "frost-moon-boss/frame-16": [
+    0.5566406,
+    0.0390625
+  ],
+  "sunken-swords-boss/frame-7": [
+    0.4966216,
+    0.040540516
+  ],
+  "venom-hollow-boss/frame-12": [
+    0.5043668,
+    0.11790395
+  ],
+  "frost-moon-boss/frame-7": [
+    0.55078125,
+    0.03515625
+  ],
+  "nether-court-boss/frame-12": [
+    0.5761719,
+    0.046875
+  ],
+  "nether-court-boss/frame-17": [
+    0.5859375,
+    0.046875
+  ],
+  "void-palace-boss/frame-16": [
+    0.53125,
+    0.046875
+  ],
+  "nether-court-boss/frame-19": [
+    0.5605469,
+    0.04296875
+  ],
+  "thunder-marsh-boss/frame-15": [
+    0.49126637,
+    0.13537121
+  ],
+  "nether-court-boss/frame-5": [
+    0.5761719,
+    0.046875
+  ],
+  "venom-hollow-boss/frame-8": [
+    0.709607,
+    0.11790395
+  ],
+  "verdant-ruins-boss/frame-1": [
+    0.53867406,
+    0.04419887
+  ],
+  "void-palace-boss/frame-3": [
+    0.5546875,
+    0.0390625
+  ],
+  "void-palace-boss/frame-6": [
+    0.5644531,
+    0.04296875
+  ],
+  "star-desert-boss/frame-15": [
+    0.5722656,
+    0.09375
+  ],
+  "nether-court-boss/frame-23": [
+    0.5800781,
+    0.046875
+  ],
+  "ember-forge-boss/frame-0": [
+    0.5262431,
+    0.066298366
+  ],
+  "verdant-ruins-boss/frame-0": [
+    0.5414365,
+    0.04419887
+  ],
+  "star-desert-boss/frame-21": [
+    0.49414062,
+    0.08984375
+  ],
+  "frost-moon-boss/frame-1": [
+    0.57421875,
+    0.03515625
+  ],
+  "thunder-marsh-boss/frame-29": [
+    0.3995633,
+    0.13537121
+  ],
+  "sunken-swords-boss/frame-12": [
+    0.52881354,
+    0.043918908
+  ],
+  "venom-hollow-boss/frame-23": [
+    0.5043668,
+    0.11790395
+  ],
+  "nether-court-boss/frame-9": [
+    0.51953125,
+    0.05078125
+  ],
+  "verdant-ruins-boss/frame-9": [
+    0.50414366,
+    0.055248618
+  ],
+  "thunder-marsh-boss/frame-1": [
+    0.46943232,
+    0.12227076
+  ],
+  "void-palace-boss/frame-22": [
+    0.51953125,
+    0.04296875
+  ],
+  "black-armour-boss/frame-8": [
+    0.6160221,
+    0.04419887
+  ],
+  "verdant-ruins-boss/frame-10": [
+    0.50414366,
+    0.049723744
+  ],
+  "star-desert-boss/frame-17": [
+    0.5410156,
+    0.0859375
+  ],
+  "thunder-marsh-boss/frame-26": [
+    0.49563318,
+    0.13973796
+  ],
+  "nether-court-boss/frame-20": [
+    0.5214844,
+    0.046875
+  ],
+  "frost-moon-boss/frame-12": [
+    0.5625,
+    0.0390625
+  ],
+  "nether-court-boss/frame-16": [
+    0.5625,
+    0.05078125
+  ],
+  "venom-hollow-boss/frame-19": [
+    0.5043668,
+    0.11353713
+  ],
+  "star-desert-boss/frame-4": [
+    0.45898438,
+    0.078125
+  ],
+  "venom-hollow-boss/frame-27": [
+    0.59170306,
+    0.12227076
+  ],
+  "void-palace-boss/frame-4": [
+    0.5683594,
+    0.0390625
+  ],
+  "void-palace-boss/frame-1": [
+    0.55078125,
+    0.0390625
+  ],
+  "ember-forge-boss/frame-7": [
+    0.6436464,
+    0.12983423
+  ],
+  "venom-hollow-boss/frame-9": [
+    0.55021834,
+    0.10917032
+  ],
+  "thunder-marsh-boss/frame-6": [
+    0.45414847,
+    0.14410478
+  ],
+  "thunder-marsh-boss/frame-7": [
+    0.46724892,
+    0.16157204
+  ],
+  "star-desert-boss/frame-20": [
+    0.5019531,
+    0.08984375
+  ],
+  "star-desert-boss/frame-22": [
+    0.5097656,
+    0.08984375
+  ],
+  "star-desert-boss/frame-13": [
+    0.53125,
+    0.09765625
+  ],
+  "black-armour-boss/frame-11": [
+    0.45303866,
+    0.04419887
+  ],
+  "guardian/0": [
+    0.45416668,
+    0.019847333
+  ],
+  "star-desert-boss/frame-7": [
+    0.5527344,
+    0.09375
+  ],
+  "ember-forge-boss/frame-5": [
+    0.48895028,
+    0.13259667
+  ],
+  "frost-moon-boss/frame-21": [
+    0.5214844,
+    0.03515625
+  ],
+  "void-palace-boss/frame-13": [
+    0.55859375,
+    0.046875
+  ],
+  "star-desert-boss/frame-9": [
+    0.5332031,
+    0.09765625
+  ],
+  "verdant-ruins-boss/frame-11": [
+    0.5441989,
+    0.049723744
+  ],
+  "black-armour-boss/frame-2": [
+    0.55110496,
+    0.04419887
+  ],
+  "thunder-marsh-boss/frame-0": [
+    0.45633188,
+    0.1048035
+  ],
+  "star-desert-boss/frame-19": [
+    0.5332031,
+    0.09375
+  ],
+  "nether-court-boss/frame-10": [
+    0.54296875,
+    0.05078125
+  ],
+  "star-desert-boss/frame-2": [
+    0.51953125,
+    0.0859375
+  ],
+  "sunken-swords-boss/frame-5": [
+    0.5236486,
+    0.033898294
+  ],
+  "frost-moon-boss/frame-8": [
+    0.5449219,
+    0.0390625
+  ],
+  "black-armour-boss/frame-4": [
+    0.48756906,
+    0.06077349
+  ],
+  "ember-forge-boss/frame-2": [
+    0.4820442,
+    0.066298366
+  ],
+  "black-armour-boss/0": [
+    0.41507176,
+    0.021531105
+  ],
+  "void-palace-boss/frame-14": [
+    0.51171875,
+    0.046875
+  ],
+  "star-desert-boss/frame-10": [
+    0.5253906,
+    0.08984375
+  ],
+  "nether-court-boss/frame-1": [
+    0.5625,
+    0.046875
+  ],
+  "thunder-marsh-boss/frame-20": [
+    0.104803495,
+    0.004366815
+  ],
+  "star-desert-boss/frame-3": [
+    0.47460938,
+    0.0859375
+  ],
+  "void-palace-boss/frame-0": [
+    0.56640625,
+    0.0390625
+  ],
+  "sunken-swords-boss/frame-15": [
+    0.5067797,
+    0.037162185
+  ],
+  "black-armour-boss/frame-9": [
+    0.5138122,
+    0.04419887
+  ],
+  "venom-hollow-boss/frame-24": [
+    0.5043668,
+    0.11353713
+  ],
+  "star-desert-boss/frame-0": [
+    0.52734375,
+    0.08984375
+  ],
+  "void-palace-boss/frame-23": [
+    0.5175781,
+    0.04296875
+  ],
+  "venom-hollow-boss/frame-15": [
+    0.5262009,
+    0.11790395
+  ],
+  "thunder-marsh-boss/frame-24": [
+    0.4606987,
+    0.13537121
+  ],
+  "ember-forge-boss/frame-1": [
+    0.47928175,
+    0.06353593
+  ],
+  "thunder-marsh-boss/frame-12": [
+    0.44978166,
+    0.14410478
+  ],
+  "nether-court-boss/frame-7": [
+    0.53515625,
+    0.05078125
+  ],
+  "ember-forge-boss/frame-8": [
+    0.51104975,
+    0.06353593
+  ],
+  "black-armour-boss/frame-3": [
+    0.45441988,
+    0.041436493
+  ],
+  "nether-court-boss/frame-3": [
+    0.5332031,
+    0.0546875
+  ],
+  "sunken-swords-boss/frame-13": [
+    0.5304054,
+    0.043918908
+  ],
+  "nether-court-boss/frame-6": [
+    0.5761719,
+    0.046875
+  ],
+  "ember-forge-boss/frame-11": [
+    0.45718232,
+    0.06353593
+  ],
+  "nether-court-boss/frame-21": [
+    0.52734375,
+    0.046875
+  ],
+  "black-armour-boss/frame-5": [
+    0.6325967,
+    0.066298366
+  ],
+  "star-desert-boss/frame-6": [
+    0.52734375,
+    0.09375
+  ]
+}

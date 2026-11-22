@@ -1,0 +1,1186 @@
+[
+  {
+    "key": "sunken-swords-boss",
+    "name": "剑冢执令者",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/sunken-swords-boss",
+    "theme": "sword",
+    "tint": [
+      1,
+      0.23,
+      0.4
+    ],
+    "columns": 6,
+    "rows": 3,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "执令斩",
+        "effect": "slash",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.2,
+          0.4,
+          0.533333,
+          0.733333,
+          1
+        ],
+        "impacts": [
+          0.783333
+        ]
+      },
+      {
+        "name": "万剑归冢",
+        "effect": "rain",
+        "duration": 1.333333,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.266667,
+          0.566667,
+          0.933333,
+          1.133333,
+          1.333333
+        ],
+        "impacts": [
+          1.066667,
+          1.116667,
+          1.166667
+        ]
+      },
+      {
+        "name": "执令·裁境",
+        "effect": "domain",
+        "duration": 1.666667,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.333333,
+          0.666667,
+          0.833333,
+          1.3,
+          1.666667
+        ],
+        "impacts": [
+          0.75,
+          1,
+          1.25
+        ]
+      }
+    ]
+  },
+  {
+    "key": "verdant-ruins-boss",
+    "name": "千根木魁",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/verdant-ruins-boss",
+    "theme": "wood",
+    "tint": [
+      0.36,
+      0.88,
+      0.45
+    ],
+    "columns": 6,
+    "rows": 2,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "三连木根横扫",
+        "effect": "slash",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.333333,
+          0.5,
+          0.75,
+          1
+        ],
+        "impacts": [
+          0.291667,
+          0.5,
+          0.708333
+        ]
+      },
+      {
+        "name": "千根突刺",
+        "effect": "roots",
+        "duration": 1.166667,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.416667,
+          0.666667,
+          0.916667,
+          1.166667
+        ],
+        "impacts": [
+          0.791667
+        ]
+      }
+    ]
+  },
+  {
+    "key": "black-armour-boss",
+    "name": "玄甲城主",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/black-armour-boss",
+    "theme": "metal",
+    "tint": [
+      1,
+      0.8,
+      0.4
+    ],
+    "columns": 4,
+    "rows": 3,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "横扫斩",
+        "effect": "slash",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          2,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.133333,
+          0.333333,
+          0.533333,
+          0.8,
+          1
+        ],
+        "impacts": [
+          0.7
+        ]
+      },
+      {
+        "name": "震地重击",
+        "effect": "slam",
+        "duration": 1.333333,
+        "travel": 0,
+        "frames": [
+          0,
+          3,
+          3,
+          4,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.2,
+          0.4,
+          0.566667,
+          1,
+          1.333333
+        ],
+        "impacts": [
+          0.833333
+        ]
+      },
+      {
+        "name": "冲锋斩",
+        "effect": "charge",
+        "duration": 1.2,
+        "travel": 130,
+        "frames": [
+          0,
+          1,
+          5,
+          6,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.133333,
+          0.266667,
+          0.6,
+          0.9,
+          1.2
+        ],
+        "impacts": [
+          0.733333
+        ]
+      },
+      {
+        "name": "玄甲降城",
+        "effect": "spirit",
+        "duration": 2,
+        "travel": 0,
+        "frames": [
+          0,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.266667,
+          0.533333,
+          0.933333,
+          1.4,
+          2
+        ],
+        "impacts": [
+          1.333333
+        ]
+      }
+    ]
+  },
+  {
+    "key": "ember-forge-boss",
+    "name": "熔炉炎君",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/ember-forge-boss",
+    "theme": "fire",
+    "tint": [
+      1,
+      0.33,
+      0.06
+    ],
+    "columns": 4,
+    "rows": 3,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "重锤砸击",
+        "effect": "slam",
+        "duration": 1.5,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          1,
+          2,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.5,
+          0.958333,
+          1.25,
+          1.5
+        ],
+        "impacts": [
+          1.208333
+        ]
+      },
+      {
+        "name": "横扫烈焰",
+        "effect": "slash",
+        "duration": 1.333333,
+        "travel": 0,
+        "frames": [
+          0,
+          3,
+          3,
+          4,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.5,
+          0.833333,
+          1.125,
+          1.333333
+        ],
+        "impacts": [
+          1.041667
+        ]
+      },
+      {
+        "name": "熔岩喷涌",
+        "effect": "roots",
+        "duration": 1.666667,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          5,
+          5,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.416667,
+          0.666667,
+          1.291667,
+          1.666667
+        ],
+        "impacts": [
+          1,
+          1.25,
+          1.458333
+        ]
+      },
+      {
+        "name": "烈焰冲锋",
+        "effect": "charge",
+        "duration": 1.25,
+        "travel": 140,
+        "frames": [
+          0,
+          3,
+          6,
+          7,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.166667,
+          0.333333,
+          0.75,
+          1,
+          1.25
+        ],
+        "impacts": [
+          0.875
+        ]
+      },
+      {
+        "name": "烈炉天罚",
+        "effect": "rain",
+        "duration": 3,
+        "travel": 0,
+        "frames": [
+          0,
+          8,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.333333,
+          0.833333,
+          2,
+          2.25,
+          3
+        ],
+        "impacts": [
+          2.375,
+          2.666667
+        ]
+      }
+    ]
+  },
+  {
+    "key": "frost-moon-boss",
+    "name": "寒月霜后",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/frost-moon-boss",
+    "theme": "ice",
+    "tint": [
+      0.35,
+      0.83,
+      1
+    ],
+    "columns": 6,
+    "rows": 4,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "寒月凝霜",
+        "effect": "projectile",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.66
+        ]
+      },
+      {
+        "name": "寒月弧斩",
+        "effect": "slash",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.66
+        ]
+      },
+      {
+        "name": "冰陵突刺",
+        "effect": "roots",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.66
+        ]
+      },
+      {
+        "name": "寒月星陨",
+        "effect": "rain",
+        "duration": 1.166667,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.186667,
+          0.396667,
+          0.606667,
+          0.863334,
+          1.166667
+        ],
+        "impacts": [
+          0.676667,
+          0.84,
+          0.98
+        ]
+      }
+    ]
+  },
+  {
+    "key": "thunder-marsh-boss",
+    "name": "震霄雷将",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/thunder-marsh-boss",
+    "theme": "thunder",
+    "tint": [
+      0.6,
+      0.53,
+      1
+    ],
+    "columns": 6,
+    "rows": 5,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "雷戟横扫",
+        "effect": "slash",
+        "duration": 0.733333,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.117333,
+          0.249333,
+          0.381333,
+          0.542666,
+          0.733333
+        ],
+        "impacts": [
+          0.484
+        ]
+      },
+      {
+        "name": "裂霄突刺",
+        "effect": "charge",
+        "duration": 0.6,
+        "travel": 130,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.096,
+          0.204,
+          0.312,
+          0.444,
+          0.6
+        ],
+        "impacts": [
+          0.396
+        ]
+      },
+      {
+        "name": "引雷霹柱",
+        "effect": "lightning",
+        "duration": 0.8,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.128,
+          0.272,
+          0.416,
+          0.592,
+          0.8
+        ],
+        "impacts": [
+          0.528
+        ]
+      },
+      {
+        "name": "震霄雷环",
+        "effect": "domain",
+        "duration": 0.8,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.128,
+          0.272,
+          0.416,
+          0.592,
+          0.8
+        ],
+        "impacts": [
+          0.528
+        ]
+      },
+      {
+        "name": "雷牢禁缚",
+        "effect": "cage",
+        "duration": 1.333333,
+        "travel": 0,
+        "frames": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          0
+        ],
+        "times": [
+          0,
+          0.213333,
+          0.453333,
+          0.693333,
+          0.986666,
+          1.333333
+        ],
+        "impacts": [
+          0.826666,
+          1.04
+        ]
+      }
+    ]
+  },
+  {
+    "key": "venom-hollow-boss",
+    "name": "千丝蛛后",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/venom-hollow-boss",
+    "theme": "poison",
+    "tint": [
+      0.58,
+      1,
+      0.18
+    ],
+    "columns": 6,
+    "rows": 5,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "毒液喷射",
+        "effect": "projectile",
+        "duration": 1.25,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.2,
+          0.425,
+          0.65,
+          0.925,
+          1.25
+        ],
+        "impacts": [
+          0.825
+        ]
+      },
+      {
+        "name": "蛛网束缚",
+        "effect": "web",
+        "duration": 1.5,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.24,
+          0.51,
+          0.78,
+          1.11,
+          1.5
+        ],
+        "impacts": [
+          0.99
+        ]
+      },
+      {
+        "name": "毒雾弥漫",
+        "effect": "poison",
+        "duration": 1.8,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.288,
+          0.612,
+          0.936,
+          1.332,
+          1.8
+        ],
+        "impacts": [
+          1.044,
+          1.296,
+          1.548
+        ]
+      },
+      {
+        "name": "万蛊孵化",
+        "effect": "summon",
+        "duration": 2,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.32,
+          0.68,
+          1.04,
+          1.48,
+          2
+        ],
+        "impacts": [
+          1.3,
+          1.6
+        ]
+      },
+      {
+        "name": "蛊毒爆裂",
+        "effect": "poison",
+        "duration": 1.8,
+        "travel": 0,
+        "frames": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          0
+        ],
+        "times": [
+          0,
+          0.288,
+          0.612,
+          0.936,
+          1.332,
+          1.8
+        ],
+        "impacts": [
+          1.26
+        ]
+      }
+    ]
+  },
+  {
+    "key": "star-desert-boss",
+    "name": "星砂巨像",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/star-desert-boss",
+    "theme": "sand",
+    "tint": [
+      1,
+      0.74,
+      0.3
+    ],
+    "columns": 6,
+    "rows": 4,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "重拳砸击",
+        "effect": "slam",
+        "duration": 0.933333,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.149333,
+          0.317333,
+          0.485333,
+          0.690666,
+          0.933333
+        ],
+        "impacts": [
+          0.616
+        ]
+      },
+      {
+        "name": "星砂震荡",
+        "effect": "slam",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.6,
+          0.78
+        ]
+      },
+      {
+        "name": "陨星投掷",
+        "effect": "projectile",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.66
+        ]
+      },
+      {
+        "name": "星砂漩涡",
+        "effect": "vortex",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.58,
+          0.72,
+          0.86
+        ]
+      }
+    ]
+  },
+  {
+    "key": "nether-court-boss",
+    "name": "古殿执事",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/nether-court-boss",
+    "theme": "ghost",
+    "tint": [
+      0.35,
+      1,
+      0.75
+    ],
+    "columns": 6,
+    "rows": 4,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "判官笔·断生死",
+        "effect": "slash",
+        "duration": 0.8,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.128,
+          0.272,
+          0.416,
+          0.592,
+          0.8
+        ],
+        "impacts": [
+          0.528
+        ]
+      },
+      {
+        "name": "生死簿·勾魂录",
+        "effect": "spirit",
+        "duration": 1,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.16,
+          0.34,
+          0.52,
+          0.74,
+          1
+        ],
+        "impacts": [
+          0.66
+        ]
+      },
+      {
+        "name": "拘魂链·缚罪魂",
+        "effect": "chain",
+        "duration": 0.9,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.144,
+          0.306,
+          0.468,
+          0.666,
+          0.9
+        ],
+        "impacts": [
+          0.594
+        ]
+      },
+      {
+        "name": "幽冥审判·荡魂狱",
+        "effect": "domain",
+        "duration": 1.5,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.24,
+          0.51,
+          0.78,
+          1.11,
+          1.5
+        ],
+        "impacts": [
+          0.87,
+          1.08,
+          1.29
+        ]
+      }
+    ]
+  },
+  {
+    "key": "void-palace-boss",
+    "name": "太虚守尊",
+    "atlas": "Game/Guxu/Expansion/BossAnimations/void-palace-boss",
+    "theme": "void",
+    "tint": [
+      0.76,
+      0.51,
+      1
+    ],
+    "columns": 6,
+    "rows": 4,
+    "idleFrame": 0,
+    "attacks": [
+      {
+        "name": "星陨天坠",
+        "effect": "meteor",
+        "duration": 2,
+        "travel": 0,
+        "frames": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          0
+        ],
+        "times": [
+          0,
+          0.32,
+          0.68,
+          1.04,
+          1.48,
+          2
+        ],
+        "impacts": [
+          1.2,
+          1.44,
+          1.68
+        ]
+      },
+      {
+        "name": "虚空斩解",
+        "effect": "slash",
+        "duration": 1.2,
+        "travel": 0,
+        "frames": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          0
+        ],
+        "times": [
+          0,
+          0.192,
+          0.408,
+          0.624,
+          0.888,
+          1.2
+        ],
+        "impacts": [
+          0.792
+        ]
+      },
+      {
+        "name": "时域禁锢",
+        "effect": "domain",
+        "duration": 1.733333,
+        "travel": 0,
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          0
+        ],
+        "times": [
+          0,
+          0.277333,
+          0.589333,
+          0.901333,
+          1.282666,
+          1.733333
+        ],
+        "impacts": [
+          1.144
+        ]
+      },
+      {
+        "name": "太虚寂灭",
+        "effect": "vortex",
+        "duration": 2.4,
+        "travel": 0,
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          0
+        ],
+        "times": [
+          0,
+          0.384,
+          0.816,
+          1.248,
+          1.776,
+          2.4
+        ],
+        "impacts": [
+          1.44,
+          1.728,
+          2.016
+        ]
+      }
+    ]
+  }
+]

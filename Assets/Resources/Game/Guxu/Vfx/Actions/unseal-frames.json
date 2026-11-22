@@ -1,0 +1,282 @@
+{
+  "visibleHeightPixels": 663,
+  "releaseFrame": 8,
+  "ordinaryTimes": [
+    0,
+    0.06,
+    0.14,
+    0.24,
+    0.34,
+    0.44,
+    0.54,
+    0.63,
+    0.72,
+    0.84,
+    0.98,
+    1.12,
+    1.28,
+    1.45,
+    1.62,
+    1.78
+  ],
+  "fullTimes": [
+    0,
+    0.18,
+    0.36,
+    0.55,
+    0.75,
+    0.95,
+    1.15,
+    1.35,
+    1.5,
+    2.0,
+    2.5,
+    2.7,
+    3.0,
+    3.25,
+    3.55,
+    3.9
+  ],
+  "frames": [
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-00",
+      "palm": [
+        0.736328,
+        0.489583
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-01",
+      "palm": [
+        0.820312,
+        0.548177
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-02",
+      "palm": [
+        0.779297,
+        0.696615
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-03",
+      "palm": [
+        0.771484,
+        0.744792
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-04",
+      "palm": [
+        0.8125,
+        0.824219
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-05",
+      "palm": [
+        0.771484,
+        0.911458
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-06",
+      "palm": [
+        0.814453,
+        0.958333
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-07",
+      "palm": [
+        0.863281,
+        0.890625
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-08",
+      "palm": [
+        0.927734,
+        0.835938
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-09",
+      "palm": [
+        0.943359,
+        0.855469
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-10",
+      "palm": [
+        0.908203,
+        0.803385
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-11",
+      "palm": [
+        0.810547,
+        0.776042
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-12",
+      "palm": [
+        0.75,
+        0.761719
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-13",
+      "palm": [
+        0.800781,
+        0.621094
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-14",
+      "palm": [
+        0.792969,
+        0.528646
+      ],
+      "leftFoot": [
+        0.421875,
+        0.083333
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    },
+    {
+      "key": "Game/Guxu/Vfx/Actions/unseal-15",
+      "palm": [
+        0.736328,
+        0.489583
+      ],
+      "leftFoot": [
+        0.427734,
+        0.084635
+      ],
+      "rightFoot": [
+        0.697266,
+        0.083333
+      ]
+    }
+  ]
+}

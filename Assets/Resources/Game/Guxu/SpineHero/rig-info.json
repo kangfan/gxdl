@@ -1,0 +1,13 @@
+{
+  "bones": 22,
+  "vertices": 3185,
+  "triangles": 6144,
+  "source": "G:\\demos\\gxdl\\Assets\\Resources\\Game\\Guxu\\SpineHero\\hero.png",
+  "animations": [
+    "idle",
+    "attack",
+    "unseal",
+    "hit"
+  ],
+  "runtimeCommit": "5cb78e77d3711ddcd80c7bd043bb11cf70fcc88c"
+}

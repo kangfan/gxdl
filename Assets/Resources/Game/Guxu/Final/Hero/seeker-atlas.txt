@@ -1,0 +1,160 @@
+hero.png
+size: 1086,1448
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+hero
+  rotate: false
+  xy: 0,0
+  size: 1086,1448
+  orig: 1086,1448
+  offset: 0,0
+  index: -1
+
+unseal-parts.png
+size: 1448,1086
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+uf_hair
+  rotate: false
+  xy: 741,17
+  size: 330,337
+  orig: 330,337
+  offset: 0,0
+  index: -1
+uf_ribbon
+  rotate: false
+  xy: 1104,57
+  size: 313,247
+  orig: 313,247
+  offset: 0,0
+  index: -1
+uf_legL
+  rotate: false
+  xy: 120,728
+  size: 115,351
+  orig: 115,351
+  offset: 0,0
+  index: -1
+uf_legR
+  rotate: false
+  xy: 469,729
+  size: 166,346
+  orig: 166,346
+  offset: 0,0
+  index: -1
+uf_skirtL
+  rotate: false
+  xy: 741,724
+  size: 280,356
+  orig: 280,356
+  offset: 0,0
+  index: -1
+uf_skirtR
+  rotate: false
+  xy: 1141,726
+  size: 291,351
+  orig: 291,351
+  offset: 0,0
+  index: -1
+uf_upperR
+  rotate: false
+  xy: 827,367
+  size: 160,351
+  orig: 160,351
+  offset: 0,0
+  index: -1
+uf_foreR
+  rotate: false
+  xy: 1133,425
+  size: 271,219
+  orig: 271,219
+  offset: 0,0
+  index: -1
+uf_upperL
+  rotate: false
+  xy: 43,367
+  size: 254,343
+  orig: 254,343
+  offset: 0,0
+  index: -1
+uf_foreL
+  rotate: false
+  xy: 503,383
+  size: 99,315
+  orig: 99,315
+  offset: 0,0
+  index: -1
+uf_body
+  rotate: false
+  xy: 71,10
+  size: 236,341
+  orig: 236,341
+  offset: 0,0
+  index: -1
+uf_head
+  rotate: false
+  xy: 440,23
+  size: 239,297
+  orig: 239,297
+  offset: 0,0
+  index: -1
+
+home-hero.png
+size: 1086,1448
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+home_hero
+  rotate: false
+  xy: 0,0
+  size: 1086,1448
+  orig: 1086,1448
+  offset: 0,0
+  index: -1
+
+home-arm-repair.png
+size: 1086,1448
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+home_arm_repair
+  rotate: false
+  xy: 0,0
+  size: 1086,1448
+  orig: 1086,1448
+  offset: 0,0
+  index: -1
+
+attack-items.png
+size: 1448,1086
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+attack_items
+  rotate: false
+  xy: 0,0
+  size: 1448,1086
+  orig: 1448,1086
+  offset: 0,0
+  index: -1
+
+attack-grip.png
+size: 1395,1127
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pma: false
+attack_grip
+  rotate: false
+  xy: 0,0
+  size: 1395,1127
+  orig: 1395,1127
+  offset: 0,0
+  index: -1
