@@ -16,13 +16,39 @@ namespace Gxdl.EditorTools
     {
         public const string PrefabPath = "Assets/Resources/" + UiScreens.GrowthHub + ".prefab";
         const string ArtFolder = "Game/Guxu/Expansion/UI/";
+        const string SkinPath = "Assets/Resources/Game/Guxu/Expansion/UI/";
         const float BoardWidth = 940f;
         const float BoardHeight = 1672f;
         const string Board = "Growth Hub";
 
-        static readonly float[] RowY = { 323f, 565f, 804f, 1048f };
+        static readonly float[] RowY = { 380f, 631f, 882f, 1133f };
         static readonly string[] RowKeys = { "Forge", "Realm", "Talents", "Gems" };
         static readonly string[] RowTitles = { "槽位锻造", "境界修炼", "三系天赋", "灵玉镶嵌" };
+        static readonly string[] RowCardKeys = { "growth-card-forge", "growth-card-realm", "growth-card-talents", "growth-card-gems" };
+
+        // 效果图采样
+        static readonly Color BackInk = FromHex(0xFDF4CD);
+        static readonly Color SubtitleInk = FromHex(0x28323B);
+        static readonly Color EntryTitleInk = FromHex(0x472004);
+        static readonly Color EntryDetailInk = FromHex(0x4A403F);
+        static readonly Color BtnLabelInk = FromHex(0xFDFDF6);
+        static readonly Color DungeonLabelInk = FromHex(0x8A6A3C);
+        static readonly Color FooterInk = FromHex(0xFEFEFD);
+
+        static Color FromHex(long value) => new Color(
+            ((value >> 16) & 0xFF) / 255f, ((value >> 8) & 0xFF) / 255f, (value & 0xFF) / 255f);
+
+        static Sprite Skin(string key) => AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + key + ".png");
+
+        static Image SkinImage(UiPrefabBuilder builder, string parent, string name,
+            float x, float y, float width, float height, string key, bool raycast = false)
+        {
+            var image = builder.Node(parent, name, x, y, width, height).gameObject.AddComponent<Image>();
+            image.sprite = Skin(key);
+            image.enabled = image.sprite != null;
+            image.raycastTarget = raycast;
+            return image;
+        }
 
         static GrowthHubPrefabSource()
         {
@@ -45,26 +71,16 @@ namespace Gxdl.EditorTools
                 AnchorUtility.Apply(root, AnchorPreset.Stretch, Vector2.zero, Vector2.zero);
                 ScreenPrefabKit.AddRootComponents(root);
 
-                var backing = builder.ImageNode("", "Backing", 0f, 0f,
-                    UiRootLayout.DesignWidth, UiRootLayout.DesignHeight, new Color(0.025f, 0.075f, 0.12f));
-                backing.rectTransform.anchorMin = Vector2.zero;
-                backing.rectTransform.anchorMax = Vector2.one;
-                backing.rectTransform.offsetMin = Vector2.zero;
-                backing.rectTransform.offsetMax = Vector2.zero;
+                var backing = builder.AnchoredNode("", "Backing", AnchorPreset.Stretch, Vector2.zero)
+                    .gameObject.AddComponent<Image>();
+                backing.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + "ui-bg-fullscreen.png");
                 backing.raycastTarget = false;
 
-                // 旧实现按 940 x 1672 整体缩放居中，这里用比例适配替代逐帧重算。
-                var frame = builder.AnchoredNode("", "Board Frame", AnchorPreset.Center,
-                    new Vector2(BoardWidth, BoardHeight), Vector2.zero);
-                var fitter = frame.gameObject.AddComponent<AspectRatioFitter>();
-                fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-                fitter.aspectRatio = BoardWidth / BoardHeight;
+                // 940 x 1672 的旧版底板按 750 宽等比缩放，避免在 prefab 根尺寸下溢出错位。
+                var frame = builder.Node("", "Board Frame", 0f, 0f, BoardWidth, BoardHeight);
+                frame.localScale = Vector3.one * (UiRootLayout.DesignWidth / BoardWidth);
 
-                var board = builder.Node("Board Frame", Board, 0f, 0f, BoardWidth, BoardHeight);
-                var skin = builder.ImageNode("Board Frame/" + Board, "Skin", 0f, 0f, BoardWidth, BoardHeight, Color.white);
-                var sprite = Load("growth-layout");
-                if (sprite != null) skin.sprite = sprite;
-                else skin.color = new Color(0.03f, 0.09f, 0.13f, 0f);
+                builder.Node("Board Frame", Board, 0f, 0f, BoardWidth, BoardHeight);
 
                 BuildHeader(builder);
                 BuildEntries(builder);
@@ -80,10 +96,12 @@ namespace Gxdl.EditorTools
         static void BuildHeader(UiPrefabBuilder builder)
         {
             var p = "Board Frame/" + Board;
-            builder.TextNode(p, "Home Title", 104f, 54f, 81f, 46f, "古墟", 35, ScreenPrefabKit.Cream);
-            TextButton(builder, p, "Back", 32f, 49f, 178f, 56f, string.Empty, 0.15f, 0.38f, 0.35f);
-            builder.TextNode(p, "Subtitle", 240f, 179f, 463f, 38f,
-                "装备、境界、天赋、灵玉共同决定战斗表现", 28, ScreenPrefabKit.Cream);
+            // 返回钮：复用商城返回钮切片（同风格深蓝底）。
+            var back = SkinImage(builder, p, "Back", 46f, 29f, 205f, 66f, "shop-back", true);
+            back.gameObject.AddComponent<Button>().targetGraphic = back;
+            builder.TextNode(p, "Home Title", 60f, 36f, 175f, 46f, "古墟", 30, BackInk, TextAnchor.MiddleCenter);
+            builder.TextNode(p, "Subtitle", 284f, 95f, 420f, 34f,
+                "装备、境界、天赋、灵玉共同决定战斗表现", 24, SubtitleInk);
         }
 
         static void BuildEntries(UiPrefabBuilder builder)
@@ -93,15 +111,20 @@ namespace Gxdl.EditorTools
             {
                 var y = RowY[i];
                 var row = "Entry " + RowKeys[i];
-                builder.Node(p, row, 0f, y, BoardWidth, 200f);
+                builder.Node(p, row, 50f, y, 777f, 205f);
                 var rowPath = p + "/" + row;
 
-                builder.TextNode(rowPath, "Title", 153f, 24f, 235f, 65f, RowTitles[i], 46, PaleGold());
-                builder.TextNode(rowPath, "Detail", 94f, 105f, 377f, 38f, string.Empty, 28, ScreenPrefabKit.Cream);
-                builder.TextNode(rowPath, "Balance", 144f, 145f, 319f, 43f, string.Empty, 30, ScreenPrefabKit.Cream);
-                builder.TextNode(rowPath, "Action", 748f, 98f, 88f, 60f, "修习", 40, ScreenPrefabKit.Cream);
+                SkinImage(builder, rowPath, "Card", 0f, 0f, 777f, 205f, RowCardKeys[i]);
 
-                TextButton(builder, rowPath, "Hit", 707f, 96f, 192f, 62f, string.Empty, 0.15f, 0.38f, 0.35f);
+                builder.TextNode(rowPath, "Title", 290f, 42f, 240f, 50f, RowTitles[i], 34, EntryTitleInk);
+                builder.TextNode(rowPath, "Detail", 290f, 100f, 340f, 38f, string.Empty, 24, EntryDetailInk);
+                builder.TextNode(rowPath, "Balance", 290f, 142f, 340f, 40f, string.Empty, 26, EntryDetailInk);
+
+                // 按钮底板先建，文字后建，避免“修习”被底板遮住。
+                var hit = SkinImage(builder, rowPath, "Hit", 636f, 76f, 123f, 66f, "growth-btn-blue", true);
+                hit.gameObject.AddComponent<Button>().targetGraphic = hit;
+                builder.TextNode(rowPath, "Action", 636f, 86f, 123f, 48f, "修习", 26, BtnLabelInk,
+                    TextAnchor.MiddleCenter);
             }
         }
 
@@ -109,21 +132,26 @@ namespace Gxdl.EditorTools
         {
             var p = "Board Frame/" + Board;
             var bottom = p + "/Bottom";
+            builder.Node(p, "Bottom", 0f, 0f, 0f, 0f);
 
-            builder.TextNode(p, "Dungeons Label", 175f, 1367f, 210f, 62f, "前往资源秘境", 36, new Color(0.16f, 0.09f, 0.025f));
-            TextButton(builder, p, "Dungeons", 51f, 1355f, 392f, 87f, string.Empty, 0.86f, 0.78f, 0.54f);
+            var dungeons = SkinImage(builder, bottom, "Dungeons", 96f, 1364f, 355f, 82f, "growth-btn-gold-off", true);
+            dungeons.gameObject.AddComponent<Button>().targetGraphic = dungeons;
+            builder.TextNode(bottom, "Dungeons Label", 96f, 1379f, 355f, 52f, "前往资源秘境", 28, DungeonLabelInk,
+                TextAnchor.MiddleCenter);
 
-            builder.TextNode(p, "Loadout Label", 641f, 1367f, 167f, 62f, "战前技能", 42, ScreenPrefabKit.Cream);
-            TextButton(builder, p, "Loadout", 508f, 1356f, 371f, 86f, string.Empty, 0.15f, 0.38f, 0.35f);
+            var loadout = SkinImage(builder, bottom, "Loadout", 501f, 1362f, 301f, 79f, "growth-btn-blue-wide", true);
+            loadout.gameObject.AddComponent<Button>().targetGraphic = loadout;
+            builder.TextNode(bottom, "Loadout Label", 501f, 1377f, 301f, 50f, "战前技能", 30, BtnLabelInk,
+                TextAnchor.MiddleCenter);
 
-            builder.TextNode(p, "Tokens", 173f, 1561f, 151f, 43f, string.Empty, 29, PaleGold());
-            builder.TextNode(p, "Dust", 416f, 1561f, 167f, 43f, string.Empty, 29, PaleGold());
-            builder.TextNode(p, "Power", 681f, 1561f, 184f, 43f, string.Empty, 29, PaleGold());
+            builder.TextNode(bottom, "Tokens", 84f, 1590f, 175f, 44f, string.Empty, 26, FooterInk);
+            builder.TextNode(bottom, "Dust", 347f, 1590f, 121f, 44f, string.Empty, 26, FooterInk);
+            builder.TextNode(bottom, "Power", 585f, 1590f, 184f, 44f, string.Empty, 26, FooterInk);
         }
 
         static readonly Color PaleGoldTint = new Color(1f, 0.89f, 0.62f);
 
-        static Color PaleGold() => PaleGoldTint;
+        static Color PaleGold() => new Color(0.16f, 0.13f, 0.09f);
 
         static RectTransform TextButton(UiPrefabBuilder builder, string parent, string name,
             float x, float y, float width, float height, string label, float r, float g, float b)

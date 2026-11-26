@@ -62,6 +62,16 @@ namespace Gxdl.Modules
         {
         }
 
+        /// <summary>被弹窗压住时调用：停掉只在可见时有意义的动画与计时，但保留实例与状态。</summary>
+        public virtual void OnPause()
+        {
+        }
+
+        /// <summary>弹窗关闭、重新露出时调用：恢复被 OnPause 停掉的内容。</summary>
+        public virtual void OnResume()
+        {
+        }
+
         void OnDestroy()
         {
             OnUnbind();

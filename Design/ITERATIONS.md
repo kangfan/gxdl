@@ -386,3 +386,88 @@
 - 验收：实际登录按钮→真实Loading→开场可见且画面推进→自然结束或跳过→主界面；再次登录仍重播；核对中断标记与构建分支。若构建/正式外部认证未实际运行，明确分层，不以编辑器替代认证结论。
 - 数据保护：测试前保存原存档、PlayerPrefs、账号与编辑器状态；结束验证恢复。前轮结算类型名和天赋悬空调用修复保持。
 - 证据：Reference/OpeningAfterLoading20261121/；技术在technical，独立体验在experience。
+
+## MVP-FLOW-20261124：主界面 prefab 化、全流程审计修复、商城/排行榜、资产清理
+
+- 用户目标：按 UI 规范重构主界面；逐界面验证不得有流程中断；补齐商城/聊天/排行榜；最后清理无用代码与资源，减小工程与包体。MVP 阶段功能优先，视觉后续按系统出效果图再迭代。
+- 状态：technical-verified（Editor 自动流程验证 17/17 PASS，含清理后复测）。未打包、未真机。
+- 主界面：`HomeView` 四件套重做（View / `HomePrefabSource` / `HomeView.prefab` / `ShowHomePrefab` 接线），新背景 `home-bg.png`，右侧五入口（账号/商城/鉴宝台/资源秘境/背包），旧构建保留回退。
+- 全局流程修复：`OpenScreen` 改为先关旧页再开新页（重入同页不再自开自关）；`UiManager` 缓存改按 ModuleId；`Clear()` 同步收起 prefab 页；prefab 页根节点显式给 750×1334（根因：0 尺寸导致背景/底栏不渲染）。
+- 页面修复：战前准备关闭回来源页、开战先收起准备页、结算前隐藏战斗 HUD；成长总览 Bottom 绑定与缩放；战备返回键与技能图标；图鉴返回/品质表默认隐藏；世界地图走统一 OpenScreen；古塔选层/翻段/提示绑定；秘境详情难度切换；章节/战前重复监听；登录失败页空引用。
+- 新系统（MVP）：商城（灵尘兑换破封符/玄铁/悟道点/突破石，先校验后扣费，规则自检 9 项）；排行榜（本机真实战力/主线/塔层，联网待服务器）；聊天复用既有好友私聊，非测试包显示不可用提示。价格为首版验证值。
+- 验证方式：Unity MCP（127.0.0.1:8080）驱动 Play；`Assets/Scripts/QA/GxdlAutoFlow.cs` 在 `Tools/qa/flowcheck.run` 存在时自动登录→跳过开场→逐页断言并截图→恢复存档。报告 `Logs/qa/flow-check.txt`，截图 `Logs/qa/shots/`。另有 `Tools/qa/generate.trigger`（重建 7 个 prefab）与 `Tools/qa/reimport-textures.trigger`（重导入贴图）。
+- 清理（均经 GUID + 字符串引用核实，git 可恢复）：4 个 `.bak` 生成器；3 张无引用布局皮肤；旧 `Game/UI/` 13 张与 `Game/Music.mp3`；`Guxu/character|stone|Guardians|Items` 旧素材；`SpineHero/` 重复源（仅留材质）；`Assets/Screenshots` 空目录。Assets 220M→204M。
+- 包体根因与处理：229 张贴图 220 张原为 Uncompressed（RGBA32 估算 449MB，对应 APK 409MB）。`GuxuFinalArtImporter.ApplyBuildCompression` 统一 Android 覆盖 ASTC 6x6（分辨率上限不变），`GuxuStoryCheck`/旧 `Guxu/UI`/两张整页背景同步纳入；重导入后 228/229 覆盖（余 1 张 Video 帧原有独立 ASTC 设置）。运行时无 GetPixels/ReadPixels，压缩不影响玩法；清理后复测 17/17 PASS，主界面目视无压缩瑕疵。预计 Android 包体降至约 1/4—1/5，需实际打包核实。
+- 历史证据目录清理（用户 2026-11-24 授权）：`Reference/`（11G）、`ResourceCache/`（1.2G）已整体删除，`Logs/` 仅余编辑器进程占用的 6 个小日志；工程目录 17G→5G（其中 Library 4.2G 可由 Unity 重建）。此前各轮 ITERATIONS 条目引用的 Reference 证据文件已不存在，记录仅作历史结论。29 个旧 Editor QA 脚本仍会向 `Reference/...` 写报告，需运行时按需补建目录。
+- 遗留：古塔楼层列表美术未挂上（功能可用）；成长总览"前往资源秘境"按钮文字对比弱；主界面"账号"入口无专用圆环图。均属视觉，留到各系统效果图阶段。
+
+## HOME-RESKIN-20261124：主界面成品切图换皮
+
+- 用户授权把 `Art/主界面/主界面切图` 用于现有主界面。状态：technical-verified（Unity 导入、编译与 prefab 回读）；运行体验未验收。本轮使用用户成品，无新生图；效果图作为布局参考，`bg.png` 与已接入 `home-bg.png` 的 SHA256 相同，保留已有背景引用。
+- 设计 `/root/home_reskin` 负责映射、规范及静态验收；开发 `/root/home_reskin/dev_home_reskin` 负责接入、备份及 Unity 导入编译；主会话独立审查。仅开发持有已核对路径的 Unity 实例。
+- 范围：更新头像、身份线、双资源栏、破封主按钮、自动/保留工具条、任务条、三项右侧入口及底栏。账号和商城保留既有入口与回退素材；按实际可用功能处理装饰性加号。角色 Spine 2.0、古石待机及碎裂、现有业务规则与结算保持。
+- 验收规格见 `Reference/HomeReskin20261124/DESIGN-AND-ACCEPTANCE.md`。本轮以用户成品、代码、原尺寸图像、资源导入与 prefab 绑定核对；不另启 Play、不运行 QA、不修改现有会话和存档、不打包。实际运行体验仍待验证。
+- 收口证据：11 张新 Sprite 已导入、序列化至 `HomeView.prefab`，哈希与批次 manifest 一致；原 prefab GUID 保留。设计独立回读角色、古石、伙伴及遗宝四组位置/尺寸/pivot 与备份一致。五个底栏热区和独立自动/保留入口保留，真实灵尘图标定位与改名唯一热区可回读。证据在 `Reference/HomeReskin20261124/technical/` 与 `ResourceCache/20261124-HomeReskin-r01/`。原 Play 与场景保持，既有缓存页面的即时刷新未验证。
+
+## RESIDENCE-RESKIN-20261125：洞府系统换皮重构
+
+- 用户确认执行：按 `Art/洞府` 效果图重做洞府面板与遗宝弹窗，要求文字颜色和字体与效果图一致。状态：technical-verified（Unity MCP 驱动 Play，自动流程 21/21 PASS 含新增 4 用例；运行截图与效果图逐项对照）。真机与打包未验。
+- 切图：开发用 Python PIL 直接从用户成品效果图切片并修补文字区（用户本轮提供成品图，未走 Image 2.6 新生成；pipeline manifest 的生图来源校验不适用，改为手动导入并在本目录记录来源）。原图与产物存 `ResourceCache/residence-20261125/raw|processed/`，切片脚本 `Tools/ResidenceReskin/slice.py`。文字一律实时渲染：效果图内烘焙文字全部修补擦除，颜色逐一采样（标题 #532E06、正文 #2C2C27/#5D6270、铭牌 #494641/#302D25、青按钮 #FDFCF7、金按钮 #432B0F、弹窗名 #333333、战力 #654116）。字体沿用工程唯一字体 `Resources/Original/GameFont`（效果图字体与之同风格，未引入新字体文件）。
+- 新贴图 15 张入 `Assets/Resources/Game/Guxu/Expansion/UI/`：residence-bg/panel/window/plaque/divider/close、residence-btn-{teal,gold}-*（共 6）、relic-modal-panel、relic-btn-{teal,gold}。`GuxuFinalArtImporter` 对上述前缀强制 Sprite/Single 导入并按用途设分辨率上限（panel 1024、bg 2048、按钮 256/512、小件 128—256），Android ASTC 6x6 沿用既有规则；重导入后 328 张中 327 覆盖。注意：prefab 生成器以 Sprite 引用加载，贴图必须先以 Sprite 类型重导入再重建 prefab，顺序颠倒会存入空引用（本轮实际踩坑两次：Default 类型、`HomePrefabSource.SkinPath` 固定指向 HomeReskin/ 子目录导致 relic 切片加载 null，已改为根目录优先回退）。
+- 洞府四件套：`Modules/ResidenceView`（Apply 只填境界/战力，BindActions 七回调，IsComplete 门控回退）、`Editor/ResidencePrefabSource`（注册 "Residence"）、`UI/ResidenceView.prefab`（Modal 呈现：全屏蓝白背景 + 居中 700×654 装饰面板，六入口按钮 + 关闭）、`ShowFinalResidence` 接线（OpenScreen 优先，失败回退旧 OpenHandbook 构建；排行榜/商城走各自 OpenScreen）。`GxdlPrefabRefresh` 加入 Residence。
+- 遗宝弹窗换皮：HomeView.prefab 的 Relic Decision 重排为 700×316 金纹横幅（图标位于光晕位、名/战力/词条实时文字、分解/装备独立按钮皮），`HomeView.ApplyRelic` 正向战力色改暖棕 #66400F 系；旧构建 `ShowDrop` 同步（`SkinSealButton` 只换皮保回调）。与效果图的唯一偏差：擦除了弹窗右上角烘焙的关闭 X——本弹窗必须装备/分解二选一，不允许关闭，保留会误导。
+- 自动验证：`GxdlAutoFlow` 新增 4 用例——打开洞府为 ResidenceView、BtnClose 回主页、Chop 造待处理遗宝刷新主页弹窗、分解后弹窗关闭（其后等 3 秒让灵尘演出结束再继续导航，否则 busy 阻塞后续步骤）。报告 `Logs/qa/flow-check.txt`，截图 `Logs/qa/shots/`。
+
+## BAG-RESKIN-20261125：背包系统换皮重构
+
+- 用户确认执行：按 `Art/背包` 效果图换皮背包面板与装备详情弹窗；弹窗带缩放动画。状态：technical-verified（Unity MCP 驱动 Play，自动流程 25/25 PASS 含背包新增 4 用例；运行截图与效果图逐项对照）。真机与打包未验。
+- 切图：开发用 Python PIL 从用户成品图切片并修补（未走 Image 2.6/pipeline；来源与脚本在 `ResourceCache/bag-20261125/` 与 `Tools/BagReskin/`）。**两张原图分辨率不同**（bag 1440×2560、详情截图 1125×2000），坐标分别按 0.521/0.667 折算，首轮详情切片因沿用 bag 比例整体偏移返工。烘焙文字全部修补擦除实时渲染，颜色逐一采样（标题 #9B6728、分隔标题 #363D47、槽位名 #3A414A、提示 #3F4750、角标白 #FFFFFE、详情名 #3D4248、副题 #6A5944、分段标题 #5C4B36、按钮字 #5C4318/#394A53）。字体沿用 GameFont。
+- 新贴图 12 张入 `Expansion/UI/`：bag-panel/close/header/slot/badge/divider + gear-detail-panel/iconbox/header/close + gear-btn-gold/teal。`GuxuFinalArtImporter` 前缀分支补 Sprite/Single 导入与分辨率上限；Android ASTC 沿用。关闭按钮与阶数角标用"原位覆盖"贴法（live 图略大于烘焙图，免去异形抠图）。
+- 四件套：`Modules/BagView`（Apply 填 12 槽角标、ShowDetail/HideDetail 缩放动画、BindActions 槽位/关闭/锻造/镶嵌/详情关闭；动画协程挂在目标节点宿主上随销毁终止）、`Editor/BagPrefabSource`（注册 "Bag"）、`UI/BagView.prefab`（面板 44,334,666,682 + 详情子面板 200,384,364,588 默认隐藏）、`ShowBag` 接线。`UiScreens.Bag`、GxdlPrefabRefresh 同步。
+- 呈现：按用户确认"弹窗带缩放效果"。背包要透出主界面，**不走 OpenScreen**（它先关当前页）——直接 `UiModules.Open` 叠开并手动 FitPage 挂 canvas，主页 prefab 保留在背后；详情做成 BagView 子面板（OpenScreen 无法叠页）。
+- 功能映射（真实系统为准）：效果图"卸下/出售价格"游戏无对应功能，不展示；按钮为真实存在的"槽位锻造"（金）与"灵玉镶嵌"（青），点击打开既有旧弹窗（旧弹窗为 canvas 最新兄弟节点，层级在 prefab 页之上）。基础属性=四维真实值，附加属性=战斗词条，装备描述=槽位锻造与强化说明。
+- 自动验证：`GxdlAutoFlow` 新增 4 用例——打开背包为 BagView、点 Slot 1 开详情（以 BtnClose2 出现断言）、关详情、关背包回主页（缩放动画各 0.1 秒，断言前等待）。
+- 本轮踩坑（已回写 skill）：生成器 `builder.Node/TextNode` 父路径必须全路径（Slot 0 → BagPanel/Slot 0，两处）；panel-local 坐标与 screen 坐标不能混用（槽位行/饰线/提示被二次减面板原点，截图对照发现）；prefab 重生成前贴图必须先重导入为 Sprite；详情关闭按钮 local y 为 3 不是负值；编辑器在 Play 模式时 generate/flowcheck 触发器不会被消费。与效果图剩余偏差：背包标题饰带烘进面板裁切区外，标题以金色实时文字直接呈现（无饰带底）。
+
+## BAG-ATLAS-20261125：背包换皮改用官方图集
+
+- 用户指出此前从效果图自切的方式有问题，改提供透明底官方图集（`ResourceCache/bag-atlas/raw/atlas-bag|atlas-detail.png`，各 1024×1024），要求按图集重新换皮、与效果图一致。状态：technical-verified（25/25 PASS；截图对照图集渲染与效果图一致）。真机未验。
+- 图集切图方式：图集自带 alpha，PIL 按像素矩形 `crop` 直接裁剪并原样保留透明轮廓，不做抠图/去底；网格+2x 刻度放大定坐标。烘焙文字（背包/当前装备/页脚提示/卸下/强化）仍修补擦除实时渲染；圆形关闭按钮加椭圆 alpha 蒙版；详情分段饰线左右对切成两片、右片 X 翻转对称，中间实时文字。切片脚本 `Tools/BagReskin/slice3.py`。
+- 替换贴图：bag-panel/close/slot + 新增 bag-cloud（面板左下云纹）+ gear-detail-panel/header-l/header-r/close + gear-btn-gold/teal 全部换成图集版本；删除被替代的 bag-divider、gear-detail-header、bag-title。面板比例按图集（bag 682×563、详情 373×516），内部布局相应压缩，文字颜色沿用此前采样值。
+- 分段标题饰线为中央菱形+两侧长线（无烘焙文字），实时文字置于中间；详情关闭按钮用图集圆形 X 原位覆盖。
+
+## RELIC-ATLAS-20261125：新获得装备弹窗改用官方图集
+
+- 用户提供新获得装备弹窗官方透明图集（`ResourceCache/relic-atlas/raw/relic.png` 1024×1024），要求重新换皮该弹窗，且装备详情 tips 弹窗关闭按钮使用图集中的按钮。状态：technical-verified（Unity MCP 驱动 Play，自动流程 24/24 PASS 含遗宝弹窗用例；运行截图与效果图对照一致）。真机与打包未验。
+- 图集切片（`Tools/BagReskin/slice-relic.py`，纯矩形 crop 保 alpha）：relic-modal-panel（1000×496，分隔线/金饰带已烘焙保留，无烘焙文字）、relic-close（116×128，椭圆 alpha 蒙版圆形 X）、relic-btn-teal/gold（256×95/93）。分隔线切片资源共用：面板切片已烘分隔线，不另切 divider。
+- 布局按图集比例重排：面板 700×346 @ (25,876)；名/战力/词条实时文字居中（#333333/#654116/#5B5248 沿用采样色）；分解 (506,138,170,63)、装备 (506,215,170,63)。节点名 Resolve Equipment/Equip Relic 不变，Bind 回调不动。
+- 装备详情 tips 弹窗关闭按钮 BtnClose2 由 gear-detail-close 换为 relic-close（64×70 原位覆盖），两个弹窗共用同一关闭钮贴图；删除旧 gear-detail-close.png。
+- 导入器 `/relic-` 前缀统一 Sprite/Single 导入，relic-close 128、relic-btn 256、relic-modal-panel 1024。重导入 341 张；Home/Bag 等 9 个 prefab 全部重建。
+- 验证证据：`Logs/qa/flow-check.txt`（24 PASS 0 FAIL，RESULT PASS）、`Logs/qa/shots/07-RelicDrop.png`（弹窗金饰带横幅+居中文字+青金按钮）、`04-after-Slot_1.png`（详情弹窗图集圆形 X）。本轮 flowcheck 断言数由 25 收敛为 24（详情关闭用例合并），全绿。
+
+## TOAST-TEXT-20261125：tips 提示改纯文本动画
+
+- 用户要求去掉 tips 弹窗深色底板，只留文本：颜色 #2BEA9E、字号 40、宽 500×高 60，从屏幕中间 0.3s 渐显同时缓动上升 150px，停留 0.8s，0.2s 渐隐消失。状态：technical-verified（24/24 PASS，含遗宝分解触发提示的路径）。动画为 1.3s 瞬态，未截到逐帧运行图；真机未验。
+- 实现：`GxdlGame.Notify` 改为纯文本 Text（无底板，raycast 关闭），`ToastMotion` 协程用 unscaled 时间驱动 alpha 与世界坐标上升（乘 canvas.scaleFactor 适配分辨率），缓动用 easeOutCubic；结束销毁提示层。gem 页旧的特殊定位（FitGemFeedback/小号字分支）随底板一并移除。所有调用 Notify 的提示统一新样式。
+
+## RESIDENCE-ATLAS-20261125：洞府界面改用官方图集
+
+- 用户提供洞府界面官方透明图集（`Art/洞府/洞府切图图集.png` 1024×1024，alpha 完整），按图集重新换皮洞府。状态：technical-verified（Unity MCP 驱动 Play，自动流程 24/24 PASS；运行截图 `Logs/qa/shots/01-Residence.png` 与图集/效果图对照）。真机与打包未验。
+- 图集切片（`Tools/ResidenceReskin/slice-atlas.py`，网格+2x 刻度定坐标；**像素对象选取**：粗框外扩 ≥4px 后做 alpha 连通域分析——框中心种子提取主对象连通体（含柔光晕）、框内完整小件保留、触界邻居组件清零、裁紧贴包围盒；用户指正"应像 Photoshop 一样按像素框选对象"后由纯矩形 crop 返工为此法，已回写 ui-reskin skill；纯矩形版旧切片目录 `ResourceCache/residence-20261125/processed/` 保留作来源记录，不影响工程，旧方法仅限洞府轮替换、背包/遗宝等其他界面换皮不受影响）：residence-panel 578×480、residence-plaque-title 624×128、residence-window 326×210、residence-divider 208×45、6 个入口按钮（整理行囊/同伴招募/好友与聊天/商城带图标切片 + 悬浮/点击两枚纯蓝状态按钮）、residence-plaque 状态铭牌底、residence-cloud 云纹。烘焙文字（洞府·修行手记、四枚入口按钮字、三枚状态按钮字）全部逐列渐变修补擦除实时渲染，图标保留；文字采样：标题 #472205，蓝按钮 #134359 系（白字沿用 #FDFCF7），金按钮 #3D280A 系（沿用 #432B0F）。首轮漏擦 悬浮/点击状态 两枚蓝按钮与商城残留，返工一次。residence-bg 整页背景图集未提供，沿用上一轮切片。
+- 替换贴图 12 张覆盖旧截图切片；residence-close 改复用新获得装备图集圆形 X（切片共用）；新增 residence-plaque-title、residence-cloud。`GuxuFinalArtImporter`：residence-window/plaque-title 上限 512，plaque/divider/cloud 256。重导入 343 张。
+- 生成器几何按图集对象切片比例重排（`ResidencePrefabSource`）：面板 700×580 @ (25,377)，标题铭牌盖左上（460×94），窗景 250×161，分隔线 200×43，双状态铭牌 190×71，六按钮高度统一 62、宽度按各切片原比例（132—196）两列对齐；节点名与 Bind 全部不变。返工两次：同行档案按钮过窄致文字换行（按新切片宽度重排）、故事文本与基础战力铭牌压面板边框（左移）。
+- 踩坑：改生成器后立即触发的重建可能在脚本重编译前用旧程序集执行（Tick 先删触发器后构建）——prefab 时间戳更新但内容仍旧几何；需在编译完成后再触发一轮重建并抽查 prefab 序列化值。后台无焦点编辑器的 EditorApplication.update 被节流，触发器长期不被消费——`GxdlPrefabRefresh` 静态构造函数改为域重载后立即消费（先 `RunClassConstructor` 强制注册各生成器）；首版直接在未就绪时构建导致 9 个 prefab 全部返回 null、HomeView.prefab 根节点丢失 UiModule 组件（运行时报"prefab 根节点缺少 UiModule 组件：UI/HomeView"，flowcheck 因回退路径假绿）——Tick 已加就绪探测：先构建 Home，返回 null 则保留触发器待下轮重试，不再写坏 prefab；最终形态：构建后读回校验（根节点须有对应 UiModule，GetComponent(string) 对命名空间类型不可靠，改按类型简单名匹配），任一失败保留触发器 3 秒后整轮重试；refresh 期间 isUpdating 挡下后由 delayCall 接力；后台编辑器 isUpdating 可能长期为真导致 update/delayCall 链全部静默挂起——新增菜单 `Gxdl/QA/Rebuild Main Prefabs`（直调绕过守卫，同步构建+校验+写报告），MCP/人工均可确定性触发。
+- 验证证据：`Logs/qa/flow-check.txt`（24 PASS 0 FAIL，RESULT PASS）、`Logs/qa/shots/01-Residence.png`。
+- 用户对照效果图反馈按钮大小/样式与文本样式/位置偏差后重排（RESIDENCE-ATLAS 返工 2）：面板按效果图比例放大为 700×640（图集切片纵向 +10% 轻微拉伸），按钮统一 224×76 两列对齐（列位 84/386，效果图为等宽大按钮），文本字号整体上调（标题 27、故事题 30、故事文 22、铭牌签 20/值 32、按钮字 25），铭牌放大 240×90（签上值下两行居中），窗景 252×162，标题铭牌 360×66（文字居米白带），关闭钮 (642,12,56,60)。验证同上轮证据路径。
+- 全屏 UI 背景统一：用户新图（`ResourceCache/fullscreen-bg-20261125/raw/bg.png` 844×1500）覆盖 residence-bg.png；用户明确主界面背景不得覆盖，home-bg.png 已从 `ResourceCache/20261124-HomeReskin-r01/raw/bg.png` 恢复原图。源图内容替换、GUID 不变，prefab 引用无需重建。
+
+## FIVE-SYS-RESKIN-20261125：商城/图鉴/修行/寻墟/战备 五系统按效果图换皮
+
+- 用户要求以 `Art/{商城,图鉴,修行,寻墟,战备}/` 的切图与效果图（待替换界面.png 为被替换页）对五个系统换皮，切图用洞府像素对象选取新方法，数据用正式配置与真实玩法逻辑，文本颜色/位置/样式与效果图一致。经确认：五系统一次全做、书法标题保留烘焙其余文字擦除实时渲染、修行→GrowthHubView、寻墟→WorldMapView、战备→LoadoutView（战前布置主动技能页）。状态：technical-verified（Unity MCP 驱动 Play，自动流程 25/25 PASS 含新增 Codex/Loadout 步骤；运行截图 `Logs/qa/shots/{17-Shop,14-GrowthHub,21-Codex,09-WorldMap,23-Loadout}.png` 与 `ResourceCache/{shop,codex,growth,ruins,prep}-20261125/raw/mockup.png` 逐页对照）。真机与打包未验。
+- 切片：`Tools/ResidenceReskin/slice-five.py` + `slice-five-fix.py`（像素对象选取法），产出至 `ResourceCache/{sys}-20261125/processed/`（58 张带系统前缀 shop-/codex-/growth-/ruins-/prep- 拷入 `Assets/Resources/Game/Guxu/Expansion/UI/`）。首轮踩坑：切片只落在 ResourceCache 未入 Assets、生成器引用前缀名全部加载失败（白页）——补拷贝修复；`Resources.Load` 路径误带 `Assets/Resources/` 前缀返回 null——改为 `Game/Guxu/...`。商城残留烘焙字（购买×2、380+、底栏整句、副题鬼影）用 `erase-shop-text.py` 文字像素 bbox 检测 + 垂直渐变修补擦除；首版把灵尘图标与底栏装饰符一起擦掉，`recrop-shop-2.py` 从图集重裁并限定擦除区域返工。
+- 全屏背景：五页统一 ui-bg-fullscreen.png。踩坑：生成器用 `Sprite.Create` 造的精灵是运行时对象，存 prefab 后引用失效（白底）——`GuxuFinalArtImporter` 增加规则把 ui-bg-fullscreen 按 Sprite/Single 2048 导入，生成器改用 `AssetDatabase.LoadAssetAtPath<Sprite>`。
+- 生成器重写（节点名与 Bind 全部不变，仅外观/布局）：Shop（卡行 687×194 四行、shop-card/shop-buy-gold/shop-back/shop-subtitle-bar/shop-currency/shop-footer-bar/shop-title-art 书法烘焙，Coin Balance 改纯数字 MiddleRight 82 宽——原 "灵尘 N" 24 号在 62 宽文本框折行只显示"灵尘"）；Codex（620×780 面板 codex-panel，四列格子 codex-cell，标题下移避面板顶边花纹，Tier 弹窗纸色化）；GrowthHub（四行 growth-card-* 777×205，底部按钮从板坐标 1245 下移至 1362——原 940 板 ×0.798 换算后与第四行卡重叠）；WorldMap（十卡 ruins-ch-N 297×137 行距压缩 {300,480,660,840,1020}，页签下移 1190 避让，锁定暗罩 alpha 归 0——效果图锁定章不压暗、仅"尚未解锁"文字；进度/页签文字仍为真实存档数据）；Loadout（prep-skill-1..4 圆盘 160×172 + prep-nameplate，已装备角标移到圆盘上方 (12,-28)，技能名对准铭牌可见区（切片可见图案仅上部 1/3，Name y 迭代 172→158→150），详情卡 Selected Icon 白方块根因是 `LoadoutView.Apply` 从未赋图——补 `selectedIcon.sprite = skillIcons[selected].sprite`；装备/自动释放为真实玩法按钮效果图未绘制故保留）。
+- 坐标约定记录：`UiPrefabBuilder.Node` 为左上锚 pivot(0,1)、y 存负（生成器 y 正=向下）；`AnchoredNode` pivot(0.5,1) 即 x 为水平中心——Loadout 返回钮按 (20,45) 写导致左切出屏，需写中心坐标 (95,74)。排版核查用 prefab YAML 直读 RectTransform（dump-rects/dump-plates 脚本在 `Tools/ResidenceReskin/`）。
+- 验证：`Logs/qa/flow-check.txt` 25 PASS 0 FAIL（含 Codex 打开/返回、Loadout 打开/返回新断言），五页截图对照效果图通过；购买扣灵尘、进度显示、选中技能联动均为真实配置/存档数据。
+
+- 破封演出：碎裂后出现的遗宝增加上下浮动（±6px @ 2Hz，正弦叠加在原 20px 上升之上，停留阶段持续），幅度小于古石待机浮动（`GuxuUnsealParticles` 破裂与 reveal 两个循环）。

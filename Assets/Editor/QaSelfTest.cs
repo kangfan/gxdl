@@ -64,6 +64,7 @@ namespace Gxdl.EditorTools
             RunSafely("任务进度累计与完成判定", Quest_Progress_And_Complete);
             RunSafely("任务前置未完成时锁定", Quest_Prerequisite_Locks);
             RunSafely("角色切换广播事件", Role_Change_Broadcasts);
+            RunSafely("列表按行数池化复用", UiList_Pool_Reuses_Rows);
 
             WriteReport();
         }
@@ -226,6 +227,57 @@ namespace Gxdl.EditorTools
             Expect(system.SetActive("hero"), "有效角色应切换成功");
             Expect(received == "hero", "切换角色应广播 RoleChanged");
             Expect(!system.SetActive("missing"), "不存在的角色应切换失败");
+        }
+
+        static void UiList_Pool_Reuses_Rows()
+        {
+            var root = new GameObject("UiListTest", typeof(RectTransform));
+            var viewport = new GameObject("Viewport", typeof(RectTransform));
+            var content = new GameObject("Content", typeof(RectTransform));
+            var template = new GameObject("Row Template", typeof(RectTransform));
+
+            try
+            {
+                viewport.transform.SetParent(root.transform, false);
+                content.transform.SetParent(viewport.transform, false);
+                template.transform.SetParent(content.transform, false);
+                template.SetActive(false);
+
+                var list = root.AddComponent<Gxdl.Modules.UiList>();
+                list.Configure(null, (RectTransform)content.transform, (RectTransform)template.transform, 96f, 12f);
+
+                list.SetCount(3);
+                Expect(list.Count == 3, "设置 3 行后 Count 应为 3");
+                Expect(ActiveRows(content.transform) == 3, "应有 3 个激活行");
+
+                var first = list.Get(0);
+                list.SetCount(5);
+                Expect(list.Count == 5, "扩充到 5 行后 Count 应为 5");
+                Expect(ActiveRows(content.transform) == 5, "应有 5 个激活行");
+                Expect(ReferenceEquals(first, list.Get(0)), "扩充时不应重建已存在的行");
+
+                list.SetCount(2);
+                Expect(list.Count == 2, "收缩到 2 行后 Count 应为 2");
+                Expect(ActiveRows(content.transform) == 2, "应收起多余行而不是销毁");
+
+                // 行高 96、间距 12、上下留白各 8：2 行 = 8 + 8 + 192 + 12。
+                Expect(Mathf.Approximately(list.ContentHeight(2), 220f), "内容高度计算不符");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
+        static int ActiveRows(Transform content)
+        {
+            var active = 0;
+            for (var i = 0; i < content.childCount; i++)
+            {
+                if (content.GetChild(i).gameObject.activeSelf) active++;
+            }
+
+            return active;
         }
 
         static void WriteReport()

@@ -53,11 +53,11 @@ public partial class GxdlGame {
   int first=regionIndex*20+1,count=Mathf.Clamp(Rules.HighestClear-regionIndex*20,0,20);var region=Stages.regions[regionIndex];
   bool claimed=Rules.Save.chapterChests[regionIndex],ready=Rules.CanClaimChapter(regionIndex);
   var nodes=new Gxdl.Modules.ChapterMapView.ChapterNodeState[20];for(int i=0;i<20;i++)nodes[i]=ChapterNode(first+i);
-  if(page.Back)page.Back.onClick.AddListener(ShowWorldMap);
-  if(page.Chest)page.Chest.onClick.AddListener(()=>{
+  if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(ShowWorldMap);}
+  if(page.Chest){page.Chest.onClick.RemoveAllListeners();page.Chest.onClick.AddListener(()=>{
    if(Rules.ClaimChapter(regionIndex)){string id=Rules.LastRewardReceipt.id;Rules.Store();ShowChapter(regionIndex);ShowRewardReceipt(id);}
    else{ShowChapter(regionIndex);Notify("通关本章后可领取一次");}
-  });
+  });}
   page.BindNodeCallbacks(SelectChapterStage);page.BindChallenge(()=>ShowBattlePrep(Stages.stages[chapterSelections[regionIndex]-1]));page.BindGrowth(ShowGrowthHub);
   page.Apply(regionIndex,new Gxdl.Modules.ChapterMapView.ChapterHeader{Name=region.name,Story=region.story,Progress="已通关 "+count+" / 20",ClearedCount=count,ChestReady=ready,ChestState=claimed?"已领取":ready?"可领取":"宝匣锁定"},nodes);
   page.SetTerrainTint(regionIndex==0?Color.white:EncounterColors[regionIndex]);page.SetHintVisible(true);

@@ -14,15 +14,19 @@ public partial class GxdlGame {
  T OpenScreen<T>(string prefabPath) where T:Gxdl.Modules.UiModule{
   var bootstrap=GameBootstrap.Instance;
   if(bootstrap==null||bootstrap.UiModules==null)return null;
+  // 先收起旧页再开新页，避免重入同一页时新实例被随后关闭。
+  CloseScreen();
   var module=bootstrap.UiModules.Open(prefabPath);
   if(module==null)return null;
   var view=module as T;
   if(view==null){bootstrap.UiModules.Close(module.ModuleId);return null;}
-  CloseScreen();
   activeModule=module;activeModulePage=(RectTransform)view.transform;
   // 与旧页面同层：挂在旧 view 的父节点下，尺寸与缩放沿用 FitPage。
   activeModulePage.SetParent(root,false);
+  // FitPage 先将拉伸锚改为固定锚，再设设计尺寸，避免原父级尺寸被扣进 sizeDelta。
   FitPage(activeModulePage);
+  activeModulePage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,750f);
+  activeModulePage.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,1334f);
   return view;
  }
 

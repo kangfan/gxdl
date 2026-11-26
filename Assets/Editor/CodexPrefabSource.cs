@@ -15,11 +15,37 @@ namespace Gxdl.EditorTools
     public static class CodexPrefabSource
     {
         public const string PrefabPath = "Assets/Resources/" + UiScreens.Codex + ".prefab";
+        const string SkinPath = "Assets/Resources/Game/Guxu/Expansion/UI/";
 
         // 15 行 = 5 品质 × 3 阶级，每 3 行留一道分组间隔。
         const int RowCount = 15;
         const float RowStart = 164f;
         const float RowHeight = 34f;
+
+        // 效果图采样
+        static readonly Color TitleInk = FromHex(0x7A3F02);
+        static readonly Color HintInk = FromHex(0x453822);
+        static readonly Color CellNameInk = FromHex(0x3B1903);
+
+        static Color FromHex(long value) => new Color(
+            ((value >> 16) & 0xFF) / 255f, ((value >> 8) & 0xFF) / 255f, (value & 0xFF) / 255f);
+
+        static readonly Color CloseInk = FromHex(0x6E4208);
+
+        static Sprite Skin(string key) => AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + key + ".png");
+
+        static Sprite BgSprite() =>
+            AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + "ui-bg-fullscreen.png");
+
+        static Image SkinImage(UiPrefabBuilder builder, string parent, string name,
+            float x, float y, float width, float height, string key, bool raycast = false)
+        {
+            var image = builder.Node(parent, name, x, y, width, height).gameObject.AddComponent<Image>();
+            image.sprite = Skin(key);
+            image.enabled = image.sprite != null;
+            image.raycastTarget = raycast;
+            return image;
+        }
 
         static CodexPrefabSource()
         {
@@ -44,7 +70,7 @@ namespace Gxdl.EditorTools
 
                 var background = builder.AnchoredNode("", "Background", AnchorPreset.Stretch, Vector2.zero)
                     .gameObject.AddComponent<Image>();
-                background.color = new Color(0.015f, 0.045f, 0.065f);
+                background.sprite = BgSprite();
                 background.raycastTarget = false;
 
                 BuildHeader(builder);
@@ -60,34 +86,39 @@ namespace Gxdl.EditorTools
 
         static void BuildHeader(UiPrefabBuilder builder)
         {
-            var backNode = builder.AnchoredNode("", "Header Back", AnchorPreset.TopLeft, new Vector2(174f, 52f), new Vector2(15f, 24f));
+            // 面板大框（图集比例 0.71，显示 620x780 轻微拉伸）。
+            SkinImage(builder, "", "Codex Panel", 65f, 300f, 620f, 780f, "codex-panel");
+            builder.TextNode("Codex Panel", "Title", 152f, 30f, 316f, 44f, "道宝图鉴 · 五品质三阶", 26, TitleInk,
+                TextAnchor.MiddleCenter);
+
+            // 关闭钮：图集金色圆形 X，复用 backButton 绑定。
+            var backNode = builder.AnchoredNode("", "Header Back", AnchorPreset.TopLeft, new Vector2(42f, 46f), new Vector2(650f, 320f));
             var backImage = backNode.gameObject.AddComponent<Image>();
-            backImage.color = new Color(0.15f, 0.38f, 0.35f, 0.94f);
+            backImage.sprite = Skin("codex-close");
             backImage.raycastTarget = true;
             backNode.gameObject.AddComponent<Button>().targetGraphic = backImage;
-            builder.TextNode("Header Back", "Label", 0f, 0f, 174f, 52f, "‹ 返回", 24, ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+            builder.TextNode("Header Back", "Label", 0f, 0f, 42f, 46f, string.Empty, 24, ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
 
-            builder.TextNode("", "Title", 205f, 16f, 420f, 63f, "遗宝图鉴 · 五品质三阶", 34, ScreenPrefabKit.Gold);
-            builder.TextNode("", "Codex Hint", 40f, 100f, 660f, 35f, string.Empty, 23, ScreenPrefabKit.Cream);
+            builder.TextNode("", "Codex Hint", 210f, 402f, 340f, 30f, string.Empty, 18, HintInk);
         }
 
         static void BuildEntries(UiPrefabBuilder builder)
         {
-            builder.Node("", "Codex Entry Root", 0f, 140f, UiRootLayout.DesignWidth, 560f);
+            builder.Node("", "Codex Entry Root", 0f, 436f, UiRootLayout.DesignWidth, 350f);
 
             for (var i = 0; i < 12; i++)
             {
                 var path = "Codex Entry Root/Entry " + i;
-                var x = 35f + i % 4 * 156f;
-                var y = i / 4 * 185f;
-                var cell = builder.Node("Codex Entry Root", "Entry " + i, x, y, 143f, 169f);
+                var x = 100f + i % 4 * 143f;
+                var y = i / 4 * 118f;
+                var cell = builder.Node("Codex Entry Root", "Entry " + i, x, y, 110f, 112f);
                 cell.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.001f);
 
-                builder.ImageNode(path, "Shadow", 19f, 102f, 106f, 22f, new Color(0.31f, 0.28f, 0.16f, 0.25f));
-                builder.ImageNode(path, "Icon", 16f, 7f, 111f, 111f, Color.white);
-                builder.ImageNode(path, "Rule", 24f, 131f, 95f, 1f, new Color(0.54f, 0.44f, 0.22f, 0.45f));
-                builder.TextNode(path, "Name", 2f, 136f, 139f, 34f, string.Empty, 22,
-                    ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+                SkinImage(builder, path, "Cell", 0f, 0f, 110f, 82f, "codex-cell");
+                builder.ImageNode(path, "Shadow", 19f, 74f, 72f, 8f, new Color(0.31f, 0.28f, 0.16f, 0.25f));
+                builder.ImageNode(path, "Icon", 12f, 4f, 86f, 74f, Color.white).raycastTarget = false;
+                builder.TextNode(path, "Name", 0f, 86f, 110f, 26f, string.Empty, 19,
+                    CellNameInk, TextAnchor.MiddleCenter);
 
                 var button = cell.gameObject.AddComponent<Button>();
                 button.targetGraphic = cell.gameObject.GetComponent<Image>();
@@ -98,10 +129,12 @@ namespace Gxdl.EditorTools
         static void BuildTable(UiPrefabBuilder builder)
         {
             var panel = builder.AnchoredNode("", "Tier Table", AnchorPreset.Center, new Vector2(700f, 900f));
-            panel.gameObject.AddComponent<Image>().color = ScreenPrefabKit.Panel;
+            panel.gameObject.AddComponent<Image>().color = new Color(0.96f, 0.94f, 0.88f, 0.98f);
+            // 品质表默认收起，由 CodexView.ShowTable 按点击展开。
+            panel.gameObject.SetActive(false);
 
-            builder.TextNode("Tier Table", "Title", 35f, 20f, 630f, 48f, string.Empty, 30, ScreenPrefabKit.Gold);
-            builder.TextNode("Tier Table", "Note", 45f, 88f, 590f, 24f, string.Empty, 18, ScreenPrefabKit.Cream);
+            builder.TextNode("Tier Table", "Title", 35f, 20f, 630f, 48f, string.Empty, 30, TitleInk);
+            builder.TextNode("Tier Table", "Note", 45f, 88f, 590f, 24f, string.Empty, 18, HintInk);
 
             var headers = new[] { "品质 / 阶级", "攻击力", "生命值", "防御力" };
             var xs = new[] { 60f, 250f, 390f, 530f };
@@ -110,7 +143,7 @@ namespace Gxdl.EditorTools
             for (var c = 0; c < 4; c++)
             {
                 builder.TextNode("Tier Table", "Header " + c, xs[c], 116f, widths[c], 36f, headers[c], 23,
-                    ScreenPrefabKit.Cream, c == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
+                    HintInk, c == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleRight);
             }
 
             builder.Node("Tier Table", "Row Root", 45f, 0f, 610f, 700f);
@@ -123,13 +156,13 @@ namespace Gxdl.EditorTools
                 row.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.001f);
 
                 builder.ImageNode(path, "Quality Mark", 1f, 0f, 5f, 34f, Color.white);
-                builder.TextNode(path, "Label", 15f, 0f, 175f, RowHeight, string.Empty, 23, ScreenPrefabKit.Cream);
+                builder.TextNode(path, "Label", 15f, 0f, 175f, RowHeight, string.Empty, 23, CellNameInk);
                 builder.TextNode(path, "Attack", 205f, 0f, 125f, RowHeight, string.Empty, 23,
-                    ScreenPrefabKit.Cream, TextAnchor.MiddleRight);
+                    CellNameInk, TextAnchor.MiddleRight);
                 builder.TextNode(path, "Hp", 345f, 0f, 125f, RowHeight, string.Empty, 23,
-                    ScreenPrefabKit.Cream, TextAnchor.MiddleRight);
+                    CellNameInk, TextAnchor.MiddleRight);
                 builder.TextNode(path, "Defense", 485f, 0f, 105f, RowHeight, string.Empty, 23,
-                    ScreenPrefabKit.Cream, TextAnchor.MiddleRight);
+                    CellNameInk, TextAnchor.MiddleRight);
 
                 var button = row.gameObject.AddComponent<Button>();
                 button.targetGraphic = row.gameObject.GetComponent<Image>();
@@ -179,6 +212,7 @@ namespace Gxdl.EditorTools
 
                 Set(so, "tableTitle", FindText(contents, "Tier Table/Title"));
                 Set(so, "tableNote", FindText(contents, "Tier Table/Note"));
+                Set(so, "tablePanel", Find(contents, "Tier Table"));
                 Set(so, "rowRoot", Find(contents, "Tier Table/Row Root"));
 
                 var rowNames = new List<Text>();

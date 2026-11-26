@@ -8,21 +8,18 @@ namespace Gxdl.EditorTools
 {
     /// <summary>
     /// 主界面 prefab 生成器。
-    /// 只搭结构稳定的部分：顶栏玩家信息、右侧三个入口、破封按钮组、底部五格导航；
-    /// 角色立绘、遗宝决策面板、主线任务条由 HomeView.Apply 在运行时按存档创建，
-    /// 因此这里给动态层留一个空容器即可。
+    /// 使用 Art/主界面/主界面切图的独立素材；主界面文字和状态由 HomeView 刷新。
     /// </summary>
     [InitializeOnLoad]
     public static class HomePrefabSource
     {
         public const string PrefabPath = "Assets/Resources/" + UiScreens.Home + ".prefab";
+        const string SkinPath = "Assets/Resources/Game/Guxu/Expansion/UI/HomeReskin/";
 
-        static readonly Color Backing = new Color(0.015f, 0.045f, 0.065f);
-        static readonly Color Bar = new Color(0.055f, 0.15f, 0.2f, 0.95f);
         static readonly Color Gold = ScreenPrefabKit.Gold;
         static readonly Color Cream = ScreenPrefabKit.Cream;
-        static readonly Color Primary = new Color(0.8f, 0.66f, 0.36f);
-        static readonly Color Secondary = new Color(0.15f, 0.38f, 0.35f);
+        static readonly Color Ink = new Color(0.16f, 0.13f, 0.09f);
+        static readonly Color QuestJade = new Color(0.66f, 1f, 0.86f);
 
         static HomePrefabSource()
         {
@@ -42,23 +39,22 @@ namespace Gxdl.EditorTools
                 new Vector2(UiRootLayout.DesignWidth, UiRootLayout.DesignHeight)))
             {
                 var root = builder.Root;
-                AnchorUtility.Apply(root, AnchorPreset.Stretch, Vector2.zero, Vector2.zero);
-                ScreenPrefabKit.AddRootComponents(root);
+                // Home is a fixed art composition; FitPage is its only root layout owner.
+                AnchorUtility.Apply(root, AnchorPreset.Center,
+                    new Vector2(UiRootLayout.DesignWidth, UiRootLayout.DesignHeight), Vector2.zero);
 
-                // 场景背景图由控制器按资源情况替换，这里先给纯色底。
                 var background = builder.AnchoredNode("", "Background", AnchorPreset.Stretch, Vector2.zero)
                     .gameObject.AddComponent<Image>();
-                background.color = Backing;
+                background.color = Color.white;
                 background.raycastTarget = false;
 
+                BuildCharacterLayer(builder);
                 BuildPlayerHud(builder);
                 BuildSideEntries(builder);
                 BuildSealGroup(builder);
+                BuildQuest(builder);
+                BuildRelicDecision(builder);
                 BuildNavigation(builder);
-
-                // 动态层：角色、遗宝面板、任务条都挂在它下面，层级在静态元素之上。
-                var dynamicLayer = builder.AnchoredNode("", "Dynamic Layer", AnchorPreset.Stretch, Vector2.zero);
-                dynamicLayer.gameObject.AddComponent<CanvasGroup>().blocksRaycasts = false;
 
                 var path = builder.Save(PrefabPath);
                 AssetDatabase.SaveAssets();
@@ -67,106 +63,232 @@ namespace Gxdl.EditorTools
             }
         }
 
+        static void BuildCharacterLayer(UiPrefabBuilder builder)
+        {
+            // 坐标对照旧 Home()：角色与封石压在背景的岩台上。
+            ChildImage(builder, "", "Seeker Ground Shadow", 112f, 955f, 166f, 36f,
+                new Color(0.035f, 0.08f, 0.09f, 0.20f));
+
+            var seeker = ChildImage(builder, "", "Seeker Character Layer", -25f, 440f, 400f, 527f, Color.white);
+            seeker.preserveAspect = true;
+
+            var stone = ChildImage(builder, "", "Sealed Stone Layer", 430f, 455f, 200f, 220f, Color.white);
+            stone.preserveAspect = true;
+
+            builder.Node("", "Companion A Zhuan", 515f, 300f, 145f, 125f);
+
+            var relic = ChildImage(builder, "", "Pending Relic Display", 450f, 470f, 150f, 150f, Color.white);
+            relic.preserveAspect = true;
+            relic.gameObject.SetActive(false);
+        }
+
         static void BuildPlayerHud(UiPrefabBuilder builder)
         {
-            // 顶栏沿用旧 Header() 的 24,12 / 702x108 尺寸。
-            var hud = builder.Node("", "Player HUD", 24f, 12f, 702f, 108f);
-            hud.gameObject.AddComponent<Image>().color = Bar;
+            builder.Node("", "Player HUD", 24f, 12f, 702f, 108f);
 
-            // 头像热区：图由控制器填，点击进入改名。
-            var portrait = builder.Node("Player HUD", "Home Player Portrait", 0f, 3f, 84f, 84f);
-            var portraitImage = portrait.gameObject.AddComponent<Image>();
-            portraitImage.color = new Color(0.2f, 0.3f, 0.33f, 1f);
-            portraitImage.raycastTarget = true;
-            portrait.gameObject.AddComponent<Button>().targetGraphic = portraitImage;
+            SkinImage(builder, "Player HUD", "Header Flourish", 78f, 52f, 606f, 23f, "home_img_line");
+            var portrait = SkinImage(builder, "Player HUD", "Home Player Portrait", 0f, 0f, 96f, 102f,
+                "img_toux");
+            portrait.raycastTarget = true;
+            portrait.gameObject.AddComponent<Button>().targetGraphic = portrait;
 
-            var identity = builder.TextNode("Player HUD", "Player Identity", 98f, 0f, 255f, 32f, string.Empty, 26, Cream);
+            var identity = builder.TextNode("Player HUD", "Player Identity", 101f, 0f, 286f, 32f, string.Empty, 27, Cream);
             identity.resizeTextForBestFit = true;
             identity.resizeTextMinSize = 16;
             identity.supportRichText = false;
-            identity.resizeTextForBestFit = true;
-            identity.resizeTextMinSize = 16;
-            identity.supportRichText = false;
+            HeaderOutline(identity);
+            HeaderOutline(builder.TextNode("Player HUD", "Player Power", 101f, 32f, 286f, 34f, string.Empty, 28, Gold));
+            HeaderOutline(builder.TextNode("Player HUD", "Player Realm", 101f, 68f, 286f, 32f, string.Empty, 25, Cream));
 
-            builder.TextNode("Player HUD", "Player Power", 98f, 32f, 255f, 34f, string.Empty, 27, Gold);
-            builder.TextNode("Player HUD", "Player Realm", 98f, 68f, 255f, 32f, string.Empty, 24, Cream);
+            HitArea(builder, "Player HUD", "Cultivation Header", 97f, 0f, 290f, 104f);
 
-            // 修行入口覆盖身份区，点击打开境界页。
-            var cultivation = builder.Node("Player HUD", "Cultivation Header", 94f, 0f, 260f, 104f);
-            var cultivationImage = cultivation.gameObject.AddComponent<Image>();
-            cultivationImage.color = new Color(0f, 0f, 0f, 0.001f);
-            cultivationImage.raycastTarget = true;
-            cultivation.gameObject.AddComponent<Button>().targetGraphic = cultivationImage;
+            BuildBalance(builder, "Seal Token Plate", "Seal Token Icon", "Seal Token Balance", "home_btn_caiwu", 405f, 137f);
+            BuildBalance(builder, "Spirit Dust Plate", "Spirit Dust Icon", "Spirit Stone Balance", "home_btn_jinbi", 572f, 129f);
+        }
 
-            // 两种货币的数值文本给足宽度并自动缩字，避免十位数溢出。
-            builder.TextNode("Player HUD", "Seal Token Balance", 405f, 14f, 120f, 45f, string.Empty, 27, Cream)
-                .resizeTextForBestFit = true;
-            builder.TextNode("Player HUD", "Spirit Stone Balance", 574f, 14f, 128f, 45f, string.Empty, 27, Cream)
-                .resizeTextForBestFit = true;
+        static void BuildBalance(UiPrefabBuilder builder, string plateName, string iconName, string textName, string key, float x, float width)
+        {
+            var plate = SkinImage(builder, "Player HUD", plateName, x, 14f, width, 47f, key);
+            // 图标已在底图中，旧图标节点仍提供精确的灵尘到账位置。
+            var icon = ChildImage(builder, "Player HUD", iconName, x + 7f, 20f, 34f, 34f, Color.white);
+            icon.enabled = plate.sprite == null;
+            var amount = builder.TextNode("Player HUD", textName, x + 43f, 14f, width - 50f, 47f, string.Empty, 27, Cream);
+            amount.resizeTextForBestFit = true;
+            amount.resizeTextMinSize = 14;
+            HeaderOutline(amount);
+        }
+
+        static void HeaderOutline(Text text)
+        {
+            var outline = text.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.06f, 0.13f, 0.19f, 0.85f);
+            outline.effectDistance = new Vector2(1f, -1f);
         }
 
         static void BuildSideEntries(UiPrefabBuilder builder)
         {
-            // 三个入口贴右，纵向 140 间距，与旧 FinalSideEntry 的 630/210 起点一致。
-            SideEntry(builder, "Entry 鉴宝台", "鉴宝台", 630f, 210f);
-            SideEntry(builder, "Entry 资源秘境", "资源秘境", 630f, 350f);
-            SideEntry(builder, "Entry 背包", "背包", 630f, 490f);
+            // 五入口等距排右；账号位在 accounts 不可用时整体隐藏。
+            SideEntry(builder, "Entry 账号", "账号", 638f, 121f);
+            SideEntry(builder, "Entry 商城", "商城", 638f, 230f);
+            SideEntry(builder, "Entry 鉴宝台", "鉴宝台", 638f, 339f, "home_icon_xyy", 68f);
+            SideEntry(builder, "Entry 资源秘境", "资源秘境", 638f, 448f, "home_icon_zymj", 72f);
+            SideEntry(builder, "Entry 背包", "背包", 638f, 557f, "home_icon_bag", 74f);
         }
 
-        static void SideEntry(UiPrefabBuilder builder, string nodeName, string label, float x, float y)
+        static void SideEntry(UiPrefabBuilder builder, string nodeName, string label, float x, float y,
+            string key = null, float labelTop = 72f)
         {
-            var node = builder.Node("", nodeName, x, y, 108f, 130f);
-            var image = node.gameObject.AddComponent<Image>();
-            image.color = Secondary;
-            image.raycastTarget = true;
-            node.gameObject.AddComponent<Button>().targetGraphic = image;
-            builder.TextNode(nodeName, "Label", 2f, 99f, 104f, 30f, label, 22, Cream, TextAnchor.MiddleCenter);
+            HitArea(builder, "", nodeName, x, y, 104f, 106f);
+
+            var art = SkinImage(builder, nodeName, "Art", 2f, 0f, 100f, 105f, key);
+            var icon = ChildImage(builder, nodeName, "Icon", 18f, 6f, 68f, 68f, Color.white);
+            icon.preserveAspect = true;
+            icon.gameObject.SetActive(art.sprite == null);
+
+            var text = builder.TextNode(nodeName, "Label", 0f, labelTop, 104f, 26f, label, 22,
+                new Color32(45, 40, 31, 255), TextAnchor.MiddleCenter);
+            text.fontStyle = FontStyle.Bold;
+            if (art.sprite == null)
+            {
+                var outline = text.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color32(255, 239, 206, 130);
+                outline.effectDistance = new Vector2(.65f, -.65f);
+            }
         }
 
         static void BuildSealGroup(UiPrefabBuilder builder)
         {
-            // 破封主按钮：300x88，文字颜色随破封符数量由 View 改写。
-            builder.Node("", "Unseal", 320f, 751f, 300f, 88f);
-            var unseal = builder.GetOrAddComponent<Image>("Unseal");
-            unseal.color = Primary;
-            unseal.raycastTarget = true;
-            builder.GetOrAddComponent<Button>("Unseal").targetGraphic = unseal;
-            builder.TextNode("Unseal", "Label", 25f, 4f, 250f, 80f, "破  封", 36, Gold, TextAnchor.MiddleCenter);
+            var unseal = HitArea(builder, "", "Unseal", 375f, 803f, 345f, 111f);
+            unseal.targetGraphic = SkinImage(builder, "Unseal", "Unseal Gold Art", 0f, 0f, 345f, 111f, "home_btn_pofen");
+            unseal.transition = Selectable.Transition.ColorTint;
+            builder.TextNode("Unseal", "Label", 44f, 8f, 257f, 94f, "破  封", 42,
+                new Color(0.25f, 0.14f, 0.05f), TextAnchor.MiddleCenter);
 
-            builder.TextNode("", "Seal Token Cost", 449f, 837f, 168f, 38f, string.Empty, 24, Cream);
+            ChildImage(builder, "", "Seal Token Cost Icon", 492f, 921f, 30f, 30f, Color.white);
+            builder.TextNode("", "Seal Token Cost", 530f, 915f, 175f, 38f, string.Empty, 24, Ink);
 
-            builder.Node("", "Auto Unseal", 315f, 875f, 188f, 88f);
-            var auto = builder.GetOrAddComponent<Image>("Auto Unseal");
-            auto.color = Secondary;
-            auto.raycastTarget = true;
-            builder.GetOrAddComponent<Button>("Auto Unseal").targetGraphic = auto;
-            builder.TextNode("Auto Unseal", "Label", 0f, 0f, 188f, 88f, "自动破封", 24, Cream, TextAnchor.MiddleCenter);
+            SkinImage(builder, "", "Auto Options Plate", 423f, 960f, 280f, 47f, "home_bg_info_02");
+            HitArea(builder, "", "Auto Unseal", 423f, 957f, 156f, 53f);
+            ChildImage(builder, "Auto Unseal", "Toggle Track", 15f, 11f, 50f, 32f, Color.white);
+            var thumb = builder.Node("Auto Unseal", "Toggle Thumb", 19f, 16f, 22f, 22f).gameObject.AddComponent<GuxuPortraitDisc>();
+            thumb.color = new Color32(253, 232, 181, 255);
+            thumb.raycastTarget = false;
+            builder.TextNode("Auto Unseal", "Toggle Caption", 64f, 0f, 88f, 53f, "自动破封", 19, Ink, TextAnchor.MiddleCenter);
 
-            builder.Node("", "Retention", 510f, 875f, 132f, 88f);
-            var retention = builder.GetOrAddComponent<Image>("Retention");
-            retention.color = Secondary;
-            retention.raycastTarget = true;
-            builder.GetOrAddComponent<Button>("Retention").targetGraphic = retention;
-            builder.TextNode("Retention", "Label", 0f, 0f, 132f, 88f, "保留规则 ›", 24, Cream, TextAnchor.MiddleCenter);
+            HitArea(builder, "", "Retention", 579f, 957f, 124f, 53f);
+            builder.TextNode("Retention", "Label", 4f, 0f, 100f, 53f, "保留规则", 21, Ink,
+                TextAnchor.MiddleCenter);
+        }
+
+        static void BuildQuest(UiPrefabBuilder builder)
+        {
+            HitArea(builder, "", "Go Quest Target", 19f, 1048f, 458f, 141f);
+            SkinImage(builder, "Go Quest Target", "Quest Plate", 0f, 0f, 458f, 141f, "home_bg_info_01");
+            builder.TextNode("Go Quest Target", "Main Quest Title", 69f, 19f, 315f, 32f, string.Empty, 24, Gold);
+            builder.TextNode("Go Quest Target", "Main Quest Target", 69f, 52f, 326f, 35f, string.Empty, 25, QuestJade);
+            var progress = builder.TextNode("Go Quest Target", "Main Quest Progress", 69f, 88f, 340f, 42f, string.Empty, 20, Cream);
+            progress.resizeTextForBestFit = true;
+            progress.resizeTextMinSize = 17;
+        }
+
+        static void BuildRelicDecision(UiPrefabBuilder builder)
+        {
+            // 金纹横幅弹窗（官方图集 1000x496）：显示 700x346，分隔线烘焙，文字实时居中。
+            var panel = SkinImage(builder, "", "Relic Decision", 25f, 876f, 700f, 346f, "relic-modal-panel");
+            panel.raycastTarget = true;
+            panel.gameObject.SetActive(false);
+
+            ChildImage(builder, "Relic Decision", "Relic Icon", 60f, 62f, 140f, 138f, Color.white);
+            builder.TextNode("Relic Decision", "Relic Name", 75f, 52f, 500f, 44f, string.Empty, 30,
+                new Color(0.20f, 0.20f, 0.20f), TextAnchor.MiddleCenter);
+            builder.TextNode("Relic Decision", "Relic Delta", 75f, 100f, 500f, 52f, string.Empty, 32,
+                new Color(0.40f, 0.25f, 0.09f), TextAnchor.MiddleCenter);
+            var affix = builder.TextNode("Relic Decision", "Relic Affix", 100f, 180f, 500f, 70f, string.Empty, 20,
+                new Color(0.36f, 0.32f, 0.28f), TextAnchor.MiddleCenter);
+            affix.lineSpacing = 1.1f;
+
+            SkinButton(builder, "Relic Decision", "Resolve Equipment", 506f, 138f, 170f, 63f,
+                "relic-btn-teal", "分解", new Color(0.98f, 0.96f, 0.89f));
+            SkinButton(builder, "Relic Decision", "Equip Relic", 506f, 215f, 170f, 63f,
+                "relic-btn-gold", "装备", new Color(0.26f, 0.17f, 0.06f));
+        }
+
+        static Button SkinButton(UiPrefabBuilder builder, string parent, string name, float x, float y,
+            float width, float height, string key, string label, Color textColor)
+        {
+            var image = SkinImage(builder, parent, name, x, y, width, height, key);
+            image.raycastTarget = true;
+            var button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            builder.TextNode(parent + "/" + name, "Label", 8f, 4f, width - 16f, height - 8f, label, 24,
+                textColor, TextAnchor.MiddleCenter);
+            return button;
         }
 
         static void BuildNavigation(UiPrefabBuilder builder)
         {
-            // 底栏整条贴底，五格均分 150 宽；文字进 prefab，图标由控制器按资源补。
-            var bar = builder.AnchoredNode("", "Navigation", AnchorPreset.StretchBottom, new Vector2(0f, 109f));
-            bar.gameObject.AddComponent<Image>().color = Bar;
+            // 底栏贴底，整条随屏幕高度移动；五格均分 150 宽。
+            var bar = builder.AnchoredNode("", "Navigation Panel", AnchorPreset.StretchBottom, new Vector2(0f, 132f));
+            var skin = bar.gameObject.AddComponent<Image>();
+            skin.sprite = GetSkin("home_tab_btn_bg");
+            skin.color = skin.sprite != null ? Color.white : new Color(0.055f, 0.15f, 0.2f, 0.95f);
+            skin.raycastTarget = false;
 
             string[] names = { "洞府", "修行", "寻墟", "图鉴", "战备" };
             for (var i = 0; i < names.Length; i++)
             {
-                var tab = builder.Node("Navigation", "Tab " + names[i], i * 150f, 0f, 150f, 109f);
-                var image = tab.gameObject.AddComponent<Image>();
-                image.color = new Color(0f, 0f, 0f, 0.001f);
-                image.raycastTarget = true;
-                tab.gameObject.AddComponent<Button>().targetGraphic = image;
-                builder.TextNode("Navigation/Tab " + names[i], "Label", 5f, 65f, 140f, 36f, names[i], 25, Gold,
-                    TextAnchor.MiddleCenter);
+                HitArea(builder, "Navigation Panel", "Tab " + names[i], i * 150f, 0f, 150f, 132f);
+                if (i == 2) ChildImage(builder, "Navigation Panel/Tab " + names[i], "Selected Tab Light",
+                    15f, -4f, 120f, 100f, new Color(1f, 0.76f, 0.28f, 0.25f)).enabled = skin.sprite == null;
+                ChildImage(builder, "Navigation Panel/Tab " + names[i], "Icon", 34f, 0f, 82f, 82f, Color.white)
+                    .enabled = skin.sprite == null;
+                builder.TextNode("Navigation Panel/Tab " + names[i], "Label", 5f, 89f, 140f, 34f, names[i], 26,
+                    i == 2 ? new Color(1f, 0.91f, 0.68f) : Gold, TextAnchor.MiddleCenter);
             }
+        }
+
+        // —— 节点原语 ——
+
+        static Image ChildImage(UiPrefabBuilder builder, string parent, string name, float x, float y,
+            float width, float height, Color color, bool raycast = false)
+        {
+            return builder.ImageNode(parent, name, x, y, width, height, color, raycast);
+        }
+
+        // 洞府换皮切片在 Expansion/UI 根目录，旧主界面皮肤在 HomeReskin/ 子目录。
+        static Sprite GetSkin(string key) => key == null ? null :
+            AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Game/Guxu/Expansion/UI/" + key + ".png") ??
+            AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + key + ".png");
+
+        static Image SkinImage(UiPrefabBuilder builder, string parent, string name, float x, float y, float width, float height, string key)
+        {
+            var image = ChildImage(builder, parent, name, x, y, width, height, Color.white);
+            image.sprite = GetSkin(key);
+            image.enabled = image.sprite != null;
+            return image;
+        }
+
+        static Button HitArea(UiPrefabBuilder builder, string parent, string name, float x, float y, float width, float height)
+        {
+            var node = builder.Node(parent, name, x, y, width, height);
+            var hit = node.gameObject.AddComponent<UiRaycast>();
+            hit.raycastTarget = true;
+            var button = node.gameObject.AddComponent<Button>();
+            button.targetGraphic = hit;
+            button.transition = Selectable.Transition.None;
+            return button;
+        }
+
+        static void PanelButton(UiPrefabBuilder builder, string parent, string name, float x, float y,
+            float width, float height, string label)
+        {
+            var node = builder.Node(parent, name, x, y, width, height);
+            var image = node.gameObject.AddComponent<Image>();
+            image.color = label == "装备" ? new Color(0.8f, 0.66f, 0.36f) : new Color(0.15f, 0.38f, 0.35f);
+            image.raycastTarget = true;
+            node.gameObject.AddComponent<Button>().targetGraphic = image;
+            builder.TextNode(parent + "/" + name, "Label", 0f, 0f, width, height, label, 24,
+                label == "装备" ? new Color(0.25f, 0.14f, 0.05f) : Cream, TextAnchor.MiddleCenter);
         }
 
         static void Bind(string prefabPath)
@@ -179,31 +301,71 @@ namespace Gxdl.EditorTools
                 if (view == null) view = contents.AddComponent<HomeView>();
 
                 var so = new SerializedObject(view);
-                Set(so, "portraitButton", Find(contents, "Player HUD/Home Player Portrait"));
+                Set(so, "background", FindImage(contents, "Background"));
+                Set(so, "seeker", FindImage(contents, "Seeker Character Layer"));
+                Set(so, "stone", FindImage(contents, "Sealed Stone Layer"));
+                Set(so, "pendingRelic", FindImage(contents, "Pending Relic Display"));
+                Set(so, "companion", FindRect(contents, "Companion A Zhuan"));
+
+                Set(so, "portraitButton", FindButton(contents, "Player HUD/Home Player Portrait"));
                 Set(so, "identityText", FindText(contents, "Player HUD/Player Identity"));
                 Set(so, "powerText", FindText(contents, "Player HUD/Player Power"));
                 Set(so, "realmText", FindText(contents, "Player HUD/Player Realm"));
+                Set(so, "sealTokenIcon", FindImage(contents, "Player HUD/Seal Token Icon"));
                 Set(so, "sealTokenText", FindText(contents, "Player HUD/Seal Token Balance"));
+                Set(so, "spiritStoneIcon", FindImage(contents, "Player HUD/Spirit Dust Icon"));
                 Set(so, "spiritStoneText", FindText(contents, "Player HUD/Spirit Stone Balance"));
-                Set(so, "cultivationButton", Find(contents, "Player HUD/Cultivation Header"));
+                Set(so, "cultivationButton", FindButton(contents, "Player HUD/Cultivation Header"));
 
-                Set(so, "appraisalButton", Find(contents, "Entry 鉴宝台"));
-                Set(so, "dungeonButton", Find(contents, "Entry 资源秘境"));
-                Set(so, "bagButton", Find(contents, "Entry 背包"));
+                Set(so, "accountEntry", FindRect(contents, "Entry 账号"));
+                Set(so, "accountButton", FindButton(contents, "Entry 账号"));
+                Set(so, "accountIcon", FindImage(contents, "Entry 账号/Icon"));
+                Set(so, "shopButton", FindButton(contents, "Entry 商城"));
+                Set(so, "shopArt", FindImage(contents, "Entry 商城/Art"));
+                Set(so, "appraisalButton", FindButton(contents, "Entry 鉴宝台"));
+                Set(so, "appraisalArt", FindImage(contents, "Entry 鉴宝台/Art"));
+                Set(so, "dungeonButton", FindButton(contents, "Entry 资源秘境"));
+                Set(so, "dungeonArt", FindImage(contents, "Entry 资源秘境/Art"));
+                Set(so, "bagButton", FindButton(contents, "Entry 背包"));
+                Set(so, "bagArt", FindImage(contents, "Entry 背包/Art"));
 
-                Set(so, "unsealButton", Find(contents, "Unseal"));
+                Set(so, "unsealButton", FindButton(contents, "Unseal"));
+                Set(so, "unsealArt", FindImage(contents, "Unseal/Unseal Gold Art"));
                 Set(so, "unsealLabel", FindText(contents, "Unseal/Label"));
+                Set(so, "sealCostIcon", FindImage(contents, "Seal Token Cost Icon"));
                 Set(so, "sealCostText", FindText(contents, "Seal Token Cost"));
-                Set(so, "autoButton", Find(contents, "Auto Unseal"));
-                Set(so, "autoLabel", FindText(contents, "Auto Unseal/Label"));
-                Set(so, "retentionButton", Find(contents, "Retention"));
+                Set(so, "autoButton", FindButton(contents, "Auto Unseal"));
+                Set(so, "autoTrack", FindImage(contents, "Auto Unseal/Toggle Track"));
+                Set(so, "autoThumb", FindRect(contents, "Auto Unseal/Toggle Thumb"));
+                Set(so, "autoLabel", FindText(contents, "Auto Unseal/Toggle Caption"));
+                Set(so, "retentionButton", FindButton(contents, "Retention"));
+
+                Set(so, "questButton", FindButton(contents, "Go Quest Target"));
+                Set(so, "questTitle", FindText(contents, "Go Quest Target/Main Quest Title"));
+                Set(so, "questTarget", FindText(contents, "Go Quest Target/Main Quest Target"));
+                Set(so, "questUnderline", FindImage(contents, "Go Quest Target/Main Quest Underline"));
+                Set(so, "questProgress", FindText(contents, "Go Quest Target/Main Quest Progress"));
+
+                Set(so, "relicPanel", FindRect(contents, "Relic Decision"));
+                Set(so, "relicIcon", FindImage(contents, "Relic Decision/Relic Icon"));
+                Set(so, "relicName", FindText(contents, "Relic Decision/Relic Name"));
+                Set(so, "relicDelta", FindText(contents, "Relic Decision/Relic Delta"));
+                Set(so, "relicAffix", FindText(contents, "Relic Decision/Relic Affix"));
+                Set(so, "relicDismantle", FindButton(contents, "Relic Decision/Resolve Equipment"));
+                Set(so, "relicEquip", FindButton(contents, "Relic Decision/Equip Relic"));
 
                 var tabs = new List<Button>();
+                var icons = new List<Image>();
                 string[] names = { "洞府", "修行", "寻墟", "图鉴", "战备" };
-                for (var i = 0; i < names.Length; i++) tabs.Add(FindButton(contents, "Navigation/Tab " + names[i]));
+                for (var i = 0; i < names.Length; i++)
+                {
+                    tabs.Add(FindButton(contents, "Navigation Panel/Tab " + names[i]));
+                    icons.Add(FindImage(contents, "Navigation Panel/Tab " + names[i] + "/Icon"));
+                }
                 SetArray(so, "navButtons", tabs);
+                Set(so, "navPanel", FindImage(contents, "Navigation Panel"));
+                SetArray(so, "navIcons", icons);
 
-                Set(so, "dynamicLayer", Find(contents, "Dynamic Layer"));
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(contents, prefabPath);
@@ -216,10 +378,15 @@ namespace Gxdl.EditorTools
             }
         }
 
-        static Component Find(GameObject root, string path)
+        static Image FindImage(GameObject root, string path)
         {
             var node = root.transform.Find(path);
-            return node;
+            return node != null ? node.GetComponent<Image>() : null;
+        }
+
+        static RectTransform FindRect(GameObject root, string path)
+        {
+            return root.transform.Find(path) as RectTransform;
         }
 
         static Text FindText(GameObject root, string path)

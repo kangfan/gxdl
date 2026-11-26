@@ -8,15 +8,46 @@ namespace Gxdl.EditorTools
 {
     /// <summary>
     /// 世界地图 prefab 生成器。
-    /// 骨架照 GuxuExpansionUI.ShowWorldMap 的布局还原，
-    /// 十张章节卡片的文字与解锁状态由 WorldMapView.Apply 在运行时填入。
+    ///
+    /// 底图直接用美术的 world-layout.png：背景、标题、十张卡片框、
+    /// 底部两个按钮和资源栏都已在图里画好，这里只叠实时文字与透明热区。
+    /// 坐标照 GuxuExpansionUI.ShowWorldMap 对齐，那套数值就是为这张图调过的。
     /// </summary>
     [InitializeOnLoad]
     public static class WorldMapPrefabSource
     {
         public const string PrefabPath = "Assets/Resources/" + UiScreens.WorldMap + ".prefab";
 
-        static readonly float[] RowY = { 257f, 420f, 582f, 742f, 901f };
+        const string SkinPath = "Assets/Resources/Game/Guxu/Expansion/UI/";
+        const float W = 750f, H = 1334f;
+
+        static readonly float[] RowY = { 300f, 480f, 660f, 840f, 1020f };
+
+        // 效果图采样
+        static readonly Color TitleInk = FromHex(0x7C440B);
+        static readonly Color SubtitleInk = FromHex(0x737681);
+        static readonly Color CardNameInk = FromHex(0x3D291F);
+        static readonly Color CardRangeInk = FromHex(0x34241F);
+        static readonly Color CardUnlockInk = FromHex(0x263E37);
+        static readonly Color CardStatusInk = FromHex(0x2E6E5C);
+        static readonly Color TabActiveInk = FromHex(0x8A6A2C);
+        static readonly Color TabIdleInk = FromHex(0x6A7684);
+        static readonly Color FooterInk = FromHex(0xE8EEF4);
+
+        static Color FromHex(long value) => new Color(
+            ((value >> 16) & 0xFF) / 255f, ((value >> 8) & 0xFF) / 255f, (value & 0xFF) / 255f);
+
+        static Sprite Skin(string key) => AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + key + ".png");
+
+        static Image SkinImage(UiPrefabBuilder builder, string parent, string name,
+            float x, float y, float width, float height, string key, bool raycast = false)
+        {
+            var image = builder.Node(parent, name, x, y, width, height).gameObject.AddComponent<Image>();
+            image.sprite = Skin(key);
+            image.enabled = image.sprite != null;
+            image.raycastTarget = raycast;
+            return image;
+        }
 
         static WorldMapPrefabSource()
         {
@@ -32,17 +63,17 @@ namespace Gxdl.EditorTools
 
         public static string Build()
         {
-            using (var builder = new UiPrefabBuilder("WorldMapView",
-                new Vector2(UiRootLayout.DesignWidth, UiRootLayout.DesignHeight)))
+            using (var builder = new UiPrefabBuilder("WorldMapView", new Vector2(W, H)))
             {
+                // 不挂 UiRootLayout：整页按 750x1334 画，缩放交给 FitPage。
                 var root = builder.Root;
                 AnchorUtility.Apply(root, AnchorPreset.Stretch, Vector2.zero, Vector2.zero);
-                ScreenPrefabKit.AddRootComponents(root);
 
-                var background = builder.AnchoredNode("", "Background", AnchorPreset.Stretch, Vector2.zero)
-                    .gameObject.AddComponent<Image>();
-                background.color = new Color(0.015f, 0.045f, 0.065f);
+                var background = builder.ImageNode("", "Background", 0f, 0f, W, H, Color.white);
+                background.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(SkinPath + "ui-bg-fullscreen.png");
+                background.preserveAspect = false;
                 background.raycastTarget = false;
+                background.name = "Background";
 
                 BuildHeader(builder);
                 BuildChapters(builder);
@@ -57,78 +88,92 @@ namespace Gxdl.EditorTools
 
         static void BuildHeader(UiPrefabBuilder builder)
         {
-            var backNode = builder.AnchoredNode("", "Header Back", AnchorPreset.TopLeft, new Vector2(136f, 46f), new Vector2(18f, 21f));
-            var backImage = backNode.gameObject.AddComponent<Image>();
-            backImage.color = new Color(0.15f, 0.38f, 0.35f, 0.94f);
-            backImage.raycastTarget = true;
-            backNode.gameObject.AddComponent<Button>().targetGraphic = backImage;
-            builder.TextNode("Header Back", "Label", 4f, 0f, 132f, 46f, "‹ 古墟", 22, ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+            // 返回热区（左上角，覆盖返回钮位置）。
+            var back = builder.Node("", "Header Back", 18f, 21f, 136f, 46f);
+            var backHit = back.gameObject.AddComponent<Gxdl.Modules.UiRaycast>();
+            back.gameObject.AddComponent<Button>().targetGraphic = backHit;
+            builder.TextNode("Header Back", "Label", 0f, 0f, 136f, 46f, string.Empty, 20,
+                ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
 
-            builder.TextNode("", "World Title", 65f, 22f, 76f, 43f, "古墟", 27, ScreenPrefabKit.Cream);
-            builder.TextNode("", "World Progress", 115f, 149f, 194f, 36f, string.Empty, 20, ScreenPrefabKit.Cream);
-            builder.TextNode("", "Chapter Hint", 350f, 149f, 125f, 36f, "每章20关", 20, ScreenPrefabKit.Cream);
-            builder.TextNode("", "Elite Hint", 530f, 149f, 166f, 36f, "精英与首领交替", 18, ScreenPrefabKit.Cream);
+            // 古墟标题铭牌 + 副题（真实主线进度由 Apply 填）。
+            SkinImage(builder, "", "Title Plaque", 58f, 192f, 200f, 62f, "ruins-title");
+            builder.TextNode("Title Plaque", "World Title", 0f, 6f, 200f, 46f, "古墟", 30, TitleInk,
+                TextAnchor.MiddleCenter);
+            builder.TextNode("", "World Progress", 62f, 262f, 240f, 28f, string.Empty, 17,
+                SubtitleInk, TextAnchor.MiddleLeft);
         }
 
         static void BuildChapters(UiPrefabBuilder builder)
         {
-            var cardRoot = builder.Node("", "Chapter Cards", 0f, 200f, UiRootLayout.DesignWidth, 960f);
-            cardRoot.name = "Chapter Cards";
-
             for (var i = 0; i < 10; i++)
             {
-                var x = i % 2 == 0 ? 27f : 385f;
-                var y = RowY[i / 2] - 200f;
-                var card = builder.Node("Chapter Cards", "Chapter " + (i + 1), x, y, 340f, 148f);
-                card.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.001f);
+                var x = i % 2 == 0 ? 37f : 387f;
+                var y = RowY[i / 2];
+                var card = "Chapter " + (i + 1);
+                builder.Node("", card, x, y, 297f, 137f);
 
-                var lockImage = builder.ImageNode("Chapter Cards/Chapter " + (i + 1), "Lock", 3f, 3f, 334f, 140f,
-                    new Color(0.015f, 0.03f, 0.045f, 0.65f));
+                // 未解锁时压一层暗色；卡片浮岛切片在下面。
+                SkinImage(builder, card, "Card", 0f, 0f, 297f, 137f, "ruins-ch-" + (i + 1));
+                // 效果图锁定章不压暗罩，仅文字提示；保留节点供 Apply 控制显隐。
+                var lockImage = builder.ImageNode(card, "Lock", 2f, 2f, 293f, 133f,
+                    new Color(0.015f, 0.03f, 0.045f, 0f));
                 lockImage.name = "Lock";
+                lockImage.raycastTarget = false;
 
-                builder.TextNode("Chapter Cards/Chapter " + (i + 1), "Index", 12f, 14f, 32f, 80f, string.Empty, 18,
-                    ScreenPrefabKit.Cream, TextAnchor.UpperCenter);
-                builder.ImageNode("Chapter Cards/Chapter " + (i + 1), "Divider", 52f, 22f, 1f, 67f,
-                    new Color(1f, 0.87f, 0.56f, 0.55f));
-                builder.TextNode("Chapter Cards/Chapter " + (i + 1), "Name", 72f, 11f, 258f, 39f, string.Empty, 26,
-                    ScreenPrefabKit.Cream);
-                builder.TextNode("Chapter Cards/Chapter " + (i + 1), "Range", 74f, 48f, 222f, 25f, string.Empty, 19,
-                    ScreenPrefabKit.Cream);
-                builder.TextNode("Chapter Cards/Chapter " + (i + 1), "Progress", 74f, 73f, 230f, 24f, string.Empty, 17,
-                    ScreenPrefabKit.Cream);
-                builder.TextNode("Chapter Cards/Chapter " + (i + 1), "Entry", 59f, 101f, 162f, 35f, string.Empty, 20,
-                    ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+                builder.TextNode(card, "Index", 12f, 16f, 30f, 100f, string.Empty, 17,
+                    new Color(0.93f, 0.95f, 0.98f), TextAnchor.UpperCenter);
+                builder.TextNode(card, "Name", 52f, 36f, 160f, 34f, string.Empty, 23,
+                    CardNameInk, TextAnchor.MiddleLeft);
+                builder.TextNode(card, "Range", 52f, 72f, 140f, 24f, string.Empty, 16,
+                    CardRangeInk, TextAnchor.MiddleLeft);
+                builder.TextNode(card, "Progress", 52f, 96f, 170f, 22f, string.Empty, 14,
+                    CardUnlockInk, TextAnchor.MiddleLeft);
 
-                var button = card.gameObject.AddComponent<Button>();
-                button.targetGraphic = card.gameObject.GetComponent<Image>();
-                button.transition = Selectable.Transition.None;
-                button.name = "Chapter " + (i + 1);
+                // 解锁后显示「进入遗域」。
+                builder.TextNode(card, "Entry", 92f, 116f, 150f, 20f, string.Empty, 15,
+                    CardStatusInk, TextAnchor.MiddleCenter);
+
+                // 点击热区覆盖整张卡，不拦截显示。
+                var hit = builder.Node(card, "Hit", 0f, 0f, 297f, 137f);
+                var hitArea = hit.gameObject.AddComponent<Gxdl.Modules.UiRaycast>();
+                hit.gameObject.AddComponent<Button>().targetGraphic = hitArea;
             }
         }
 
         static void BuildBottom(UiPrefabBuilder builder)
         {
-            var dungeons = builder.AnchoredNode("", "Dungeons", AnchorPreset.BottomLeft,
-                new Vector2(289f, 69f), new Vector2(71f, 176f));
-            var dungeonImage = dungeons.gameObject.AddComponent<Image>();
-            dungeonImage.color = new Color(0.15f, 0.38f, 0.35f, 0.94f);
-            dungeonImage.raycastTarget = true;
-            dungeons.gameObject.AddComponent<Button>().targetGraphic = dungeonImage;
-            builder.TextNode("Dungeons", "Label", 0f, 0f, 289f, 69f, "资源秘境", 29, ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+            // 底部两个页签：热区 + 实时文字。
+            var dungeons = builder.Node("", "Dungeons", 100f, 1190f, 250f, 44f);
+            var dungeonHit = dungeons.gameObject.AddComponent<Gxdl.Modules.UiRaycast>();
+            dungeons.gameObject.AddComponent<Button>().targetGraphic = dungeonHit;
+            builder.TextNode("Dungeons", "Label", 0f, 0f, 250f, 44f, "资源秘境", 26,
+                TabActiveInk, TextAnchor.MiddleCenter);
 
-            var tower = builder.AnchoredNode("", "Tower", AnchorPreset.BottomLeft,
-                new Vector2(288f, 69f), new Vector2(391f, 176f));
-            var towerImage = tower.gameObject.AddComponent<Image>();
-            towerImage.color = new Color(0.15f, 0.38f, 0.35f, 0.94f);
-            towerImage.raycastTarget = true;
-            tower.gameObject.AddComponent<Button>().targetGraphic = towerImage;
-            builder.TextNode("Tower", "Label", 0f, 0f, 288f, 69f, "通天古塔", 29, ScreenPrefabKit.Cream, TextAnchor.MiddleCenter);
+            var tower = builder.Node("", "Tower", 400f, 1190f, 250f, 44f);
+            var towerHit = tower.gameObject.AddComponent<Gxdl.Modules.UiRaycast>();
+            tower.gameObject.AddComponent<Button>().targetGraphic = towerHit;
+            builder.TextNode("Tower", "Label", 0f, 0f, 250f, 44f, "通天古墟", 26,
+                TabIdleInk, TextAnchor.MiddleCenter);
 
-            var resources = builder.AnchoredNode("", "Resources", AnchorPreset.BottomLeft,
-                new Vector2(700f, 34f), new Vector2(25f, 64f));
-            builder.TextNode("Resources", "Tokens", 0f, 0f, 190f, 34f, string.Empty, 17, ScreenPrefabKit.Cream);
-            builder.TextNode("Resources", "Dust", 200f, 0f, 190f, 34f, string.Empty, 17, ScreenPrefabKit.Cream);
-            builder.TextNode("Resources", "Power", 400f, 0f, 190f, 34f, string.Empty, 17, ScreenPrefabKit.Cream);
+            builder.TextNode("", "Tokens", 100f, 1288f, 160f, 32f, string.Empty, 18,
+                FooterInk, TextAnchor.MiddleLeft);
+            builder.TextNode("", "Dust", 300f, 1288f, 160f, 32f, string.Empty, 18,
+                FooterInk, TextAnchor.MiddleLeft);
+            builder.TextNode("", "Power", 490f, 1288f, 200f, 32f, string.Empty, 18,
+                FooterInk, TextAnchor.MiddleLeft);
+        }
+
+        static Sprite LoadSprite(string resourcesPath)
+        {
+            var texture = Resources.Load<Texture2D>(resourcesPath);
+            if (texture == null)
+            {
+                Debug.LogWarning("[WorldMap] 缺少底图：" + resourcesPath);
+                return null;
+            }
+
+            return Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 100f);
         }
 
         static void Bind(string prefabPath)
@@ -141,14 +186,13 @@ namespace Gxdl.EditorTools
                 if (view == null) view = contents.AddComponent<WorldMapView>();
 
                 var so = new SerializedObject(view);
-                var back = Find(contents, "Header Back");
-                Set(so, "backButton", back != null ? back.GetComponent<Button>() : null);
+                Set(so, "backButton", Find(contents, "Header Back") != null ? Find(contents, "Header Back").GetComponent<Button>() : null);
                 Set(so, "progressText", FindText(contents, "World Progress"));
-                Set(so, "dungeonsButton", Find(contents, "Dungeons").GetComponent<Button>());
-                Set(so, "towerButton", Find(contents, "Tower").GetComponent<Button>());
-                Set(so, "chapterRoot", Find(contents, "Chapter Cards"));
-                Set(so, "dustText", FindText(contents, "Resources/Dust"));
-                Set(so, "powerText", FindText(contents, "Resources/Power"));
+                Set(so, "dungeonsButton", Find(contents, "Dungeons") != null ? Find(contents, "Dungeons").GetComponent<Button>() : null);
+                Set(so, "towerButton", Find(contents, "Tower") != null ? Find(contents, "Tower").GetComponent<Button>() : null);
+                Set(so, "tokensText", FindText(contents, "Tokens"));
+                Set(so, "dustText", FindText(contents, "Dust"));
+                Set(so, "powerText", FindText(contents, "Power"));
 
                 var names = new List<Text>();
                 var ranges = new List<Text>();
@@ -159,14 +203,16 @@ namespace Gxdl.EditorTools
                 var indexes = new List<Text>();
                 for (var i = 1; i <= 10; i++)
                 {
-                    var card = "Chapter Cards/Chapter " + i;
+                    var card = "Chapter " + i;
                     indexes.Add(FindText(contents, card + "/Index"));
                     names.Add(FindText(contents, card + "/Name"));
                     ranges.Add(FindText(contents, card + "/Range"));
                     progress.Add(FindText(contents, card + "/Progress"));
                     entries.Add(FindText(contents, card + "/Entry"));
-                    inputs.Add(Find(contents, card).GetComponent<Button>());
-                    locks.Add(Find(contents, card + "/Lock") != null ? Find(contents, card + "/Lock").GetComponent<Image>() : null);
+                    var hit = Find(contents, card + "/Hit");
+                    inputs.Add(hit != null ? hit.GetComponent<Button>() : null);
+                    var lockNode = Find(contents, card + "/Lock");
+                    locks.Add(lockNode != null ? lockNode.GetComponent<Image>() : null);
                 }
 
                 SetArray(so, "chapterNames", names);

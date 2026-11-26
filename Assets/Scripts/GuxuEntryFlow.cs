@@ -140,7 +140,7 @@ public partial class GxdlGame {
   Txt("暂时无法进入古墟",view,65,430,620,65,34,gold);
   Txt("资源加载未完成，请重试。",view,65,510,620,65,26,cream);
   Btn("重新加载",view,160,640,430,75,RetryGameEntry).name="Entry Retry";
-  Btn("返回登录",view,160,750,430,75,()=>accounts.Logout()).name="Entry Back";
+  Btn("返回登录",view,160,750,430,75,()=>{if(accounts!=null)accounts.Logout();else RetryGameEntry();}).name="Entry Back";
  }
  public void RetryGameEntry(){if(EntryStage==GuxuEntryStage.Failed&&EntryAuthorized(entryScope))BeginGameEntry(entryScope);}
 }

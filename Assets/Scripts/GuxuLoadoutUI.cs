@@ -44,6 +44,9 @@ public partial class GxdlGame {
   var page=OpenScreen<Gxdl.Modules.LoadoutView>(Gxdl.Modules.UiScreens.Loadout);
   if(page==null)return false;
   CloseModal();
+  // 顶部返回与底部“返回修行”都必须回到成长总览，否则只能靠挑战离开本页。
+  if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(ShowGrowthHub);}
+  if(page.Return){page.Return.onClick.RemoveAllListeners();page.Return.onClick.AddListener(ShowGrowthHub);}
   page.BindCallbacks(
    index=>{loadoutSelected=index;DrawLoadoutPage();},
    ()=>{Rules.Save.activeSkill=loadoutSelected;Rules.Store();DrawLoadoutPage();Notify("技能已装备");},

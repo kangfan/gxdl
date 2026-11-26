@@ -30,13 +30,14 @@ public partial class GxdlGame:MonoBehaviour {
  Text Txt(string value,Transform p,float x,float y,float w,float h,int size=26,Color? color=null,TextAnchor align=TextAnchor.MiddleCenter){var r=Rect(value,p,x,y,w,h);var t=r.gameObject.AddComponent<Text>();t.font=font;t.text=GuxuDisplayText.Normalize(value);t.fontSize=size;t.color=color??cream;t.alignment=align;t.raycastTarget=false;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Truncate;return t;}
  Button Btn(string value,Transform p,float x,float y,float w,float h,Action action,string asset=null,Color? color=null,int size=26){var im=Img(asset??"",p,x,y,w,h,color??(asset==null?new Color(.15f,.38f,.35f,.94f):Color.white));im.name=value.Length>0?value:"Button";if(value.Length>0&&asset==null&&im.color.a>.05f){var art=PageArt("button-flat");if(art){im.sprite=art;im.type=Image.Type.Sliced;if(RedesignedPage)im.pixelsPerUnitMultiplier=art.rect.height/h;im.color=color.HasValue?Color.Lerp(Color.white,color.Value,.35f):Color.white;}}im.raycastTarget=true;var b=im.gameObject.AddComponent<Button>();b.targetGraphic=im;b.onClick.AddListener(()=>action());if(value.Length>0)Txt(value,im.transform,0,0,w,h,size);return b;}
  OriginalAnimation Anim(string name,string clip,Transform p,float x,float y,float w,float h,bool loop=true){var r=Rect(name,p,x,y,w,h);r.gameObject.AddComponent<RawImage>().raycastTarget=false;var a=r.gameObject.AddComponent<OriginalAnimation>();a.Load(name,clip,loop);return a;}
- void Clear(){fitExpandedPage=null;screenVersion++;if(toastPanel!=null)Destroy(toastPanel.gameObject);if(toast!=null)Destroy(toast.gameObject);if(view!=null){view.gameObject.SetActive(false);Destroy(view.gameObject);}CloseModal();view=Rect("Screen",root,0,0,750,1334);FitPage(view);toast=null;toastPanel=null;}
+ void Clear(){fitExpandedPage=null;screenVersion++;CloseScreen();if(toastPanel!=null)Destroy(toastPanel.gameObject);if(toast!=null)Destroy(toast.gameObject);if(view!=null){view.gameObject.SetActive(false);Destroy(view.gameObject);}CloseModal();view=Rect("Screen",root,0,0,750,1334);FitPage(view);toast=null;toastPanel=null;}
  void FitPage(RectTransform page){if(page==view&&fitExpandedPage!=null){fitExpandedPage();return;}Canvas.ForceUpdateCanvases();float scale=Mathf.Min(root.rect.width/750f,root.rect.height/1334f);page.anchorMin=page.anchorMax=new Vector2(.5f,.5f);page.pivot=new Vector2(0,1);page.anchoredPosition=new Vector2(-375,667)*scale;page.localScale=Vector3.one*scale;if(page==modal)FitModalShade();}
  void FitModalShade(){if(!modal)return;var shade=modal.Find("Full Canvas Modal Shade") as RectTransform;if(shade)shade.sizeDelta=root.rect.size/modal.localScale.x;}
  void RefreshViewportLayout(){
   if(!root||(fittedScreenWidth==Screen.width&&fittedScreenHeight==Screen.height))return;
   fittedScreenWidth=Screen.width;fittedScreenHeight=Screen.height;
-  if(view)FitPage(view);if(modal)FitPage(modal);if(toastPanel){FitPage(toastPanel);FitGemFeedback();}
+  if(view)FitPage(view);if(modal)FitPage(modal);if(toastPanel)FitPage(toastPanel);
+  if(activeModulePage&&activeModule is Gxdl.Modules.HomeView)FitPage(activeModulePage);
  }
  Color Grade(int q)=>GuxuAnimation.QualityColors[Mathf.Clamp(q-1,0,4)];
  Image ItemCell(Sprite item,Transform p,float x,float y,float size,int quality=1){
@@ -60,7 +61,7 @@ public partial class GxdlGame:MonoBehaviour {
 
  string Describe(Gear g)=>$"{quality[Mathf.Clamp(g.quality,1,5)]} · {Rules.GearName(g)}  {g.level}阶\n攻击力 +{g.attack}    生命值 +{g.hp}\n防御力 +{g.defense}    敏捷度 +{g.speed}\n词条：{GameRules.AffixNames[Mathf.Clamp(g.affix,0,6)]} · 遗域等级 {g.lootBand+1}\n槽位锻造 +{Rules.Save.forgeLevels[g.slot]}";
  public void Chop(){if(!CanPlay||busy||battle||modal!=null)return;if(Rules.Save.pending!=null){Notify("请先装备或分解当前遗宝");return;}if(Rules.Save.peaches<=0){auto=false;Notify("破封符不足，完成冒险可获得破封符");return;}if(!Rules.Chop())return;/* Tutorial weapon retains its rolled tier with weapon-slot stat weights. */if(PlayerPrefs.GetInt(FirstUnsealStoryKey,0)==0){Rules.Save.pending.slot=0;EquipmentTiers.Apply(Rules.Save.pending);}busy=true;Rules.Store();RefreshHomeBalances();StartCoroutine(ChopAnimation());}
- public void ResolveDrop(bool replace){if(!CanPlay)return;var pending=Rules.Save.pending;int before=Rules.Save.coins,powerBefore=Rules.Attributes.Power;if(!Rules.Resolve(replace))return;int reward=Rules.Save.coins-before,powerDelta=Rules.Attributes.Power-powerBefore;Rules.Store();resolvingDrop=true;Home();if(pending!=null)StartCoroutine(FinalRelicFeedback(pending,replace));StartCoroutine(ResolveDropPresentation(before,reward));Notify(replace?"装备替换成功 · 旧装备已分解":"装备已分解 · 灵尘 +"+reward);ShowPowerChange(powerDelta);}
+ public void ResolveDrop(bool replace){if(!CanPlay||resolvingDrop)return;var pending=Rules.Save.pending;int before=Rules.Save.coins,powerBefore=Rules.Attributes.Power;if(!Rules.Resolve(replace))return;int reward=Rules.Save.coins-before,powerDelta=Rules.Attributes.Power-powerBefore;Rules.Store();resolvingDrop=true;Home();if(pending!=null)StartCoroutine(FinalRelicFeedback(pending,replace));StartCoroutine(ResolveDropPresentation(reward));Notify(replace?"装备替换成功 · 旧装备已分解":"装备已分解 · 灵尘 +"+reward);ShowPowerChange(powerDelta);}
  void ShowPowerChange(int delta){
   if(delta==0||seeker==null)return;
   var r=seeker.rectTransform;
@@ -69,21 +70,61 @@ public partial class GxdlGame:MonoBehaviour {
   var outline=label.gameObject.AddComponent<Outline>();outline.effectColor=new Color(.04f,.12f,.15f,.95f);outline.effectDistance=new Vector2(1.5f,-1.5f);
   UiFeedback.Float(label,delta>0?64:-48,1.4f);
  }
- IEnumerator ResolveDropPresentation(int before,int reward){
-  try{yield return CollectSpiritStones(before,reward);}
-  finally{resolvingDrop=false;busy=false;nextAuto=Time.time+.25f;if(view)RefreshSealPresentation();}
+ IEnumerator ResolveDropPresentation(int reward){
+  int version=screenVersion;var page=activeModule as Gxdl.Modules.HomeView;
+  RectTransform effects=page?activeModulePage:view;
+  var amount=page?page.SpiritStoneText:coinText;var target=page?page.SpiritStoneIcon:spiritDustIcon;var source=ancientStone;
+  var stones=new Image[10];Color originalColor=amount?amount.color:Color.white;busy=true;
+  try{
+   if(amount)amount.text=Rules.Save.coins.ToString();
+   // Rewards are already stored. Missing presentation nodes only skip the optional flight.
+   if(!effects||!amount||!source||!target||!effects.gameObject.activeInHierarchy)yield break;
+   var dustSprite=GuxuUiArt.Navigation(GuxuUiArt.Icon.SpiritDust);if(!dustSprite)yield break;
+   Vector2 start=effects.InverseTransformPoint(source.rectTransform.TransformPoint(source.rectTransform.rect.center));
+   Vector2 destination=effects.InverseTransformPoint(target.rectTransform.TransformPoint(target.rectTransform.rect.center));
+   float fallTime=0;var rise=new float[10];var drop=new float[10];var spread=new float[10];
+   for(int i=0;i<stones.Length;i++){
+    rise[i]=30+(i*17%51);drop[i]=30+(i*11%31);spread[i]=(i%2==0?-1:1)*(30+i*29%81);fallTime=Mathf.Max(fallTime,SpiritStoneMotion.Duration(rise[i],drop[i]));
+    stones[i]=Art(dustSprite,effects,start.x,-start.y,32,32);stones[i].rectTransform.pivot=new Vector2(.5f,.5f);stones[i].name="Spirit Stone Drop";
+   }
+   float duration=fallTime+.45f;
+   for(float elapsed=0;elapsed<duration;elapsed+=Time.deltaTime){
+    if(version!=screenVersion||!effects||!effects.gameObject.activeInHierarchy||!amount||!target)yield break;
+    for(int i=0;i<stones.Length;i++){
+     if(!stones[i])continue;var r=stones[i].rectTransform;
+     if(elapsed<fallTime){r.anchoredPosition=start+SpiritStoneMotion.Sample(elapsed,spread[i],rise[i],drop[i]);stones[i].color=new Color(1,1,1,Mathf.Clamp01(elapsed/.15f));}
+     else{float fly=elapsed-fallTime;var landing=start+new Vector2(spread[i],-drop[i]);r.anchoredPosition=Vector2.Lerp(landing,destination,SpiritStoneMotion.EaseIn(fly/.3f));stones[i].color=new Color(1,1,1,1-Mathf.Clamp01((fly-.3f)/.15f));}
+    }
+    amount.text=Rules.Save.coins.ToString();amount.color=elapsed>fallTime?gold:originalColor;yield return null;
+   }
+   if(version==screenVersion&&effects&&effects.gameObject.activeInHierarchy)UiFeedback.Float(Txt("+"+reward,effects,510,100,180,42,29,gold),45,.85f);
+  }finally{
+   foreach(var stone in stones)if(stone)Destroy(stone.gameObject);
+   if(amount)amount.color=originalColor;
+   resolvingDrop=false;busy=false;nextAuto=Time.time+.25f;
+   if(CanPlay&&ExpansionScreen=="home")RefreshHomeBalances();
+  }
  }
- IEnumerator CollectSpiritStones(int before,int reward){int version=screenVersion;busy=true;coinText.text=Rules.Save.coins.ToString();var stones=new Image[10];Vector2 start=view.InverseTransformPoint(ancientStone.rectTransform.TransformPoint(ancientStone.rectTransform.rect.center));Vector2 destination=view.InverseTransformPoint(spiritDustIcon.rectTransform.TransformPoint(spiritDustIcon.rectTransform.rect.center));float fallTime=0;var rise=new float[10];var drop=new float[10];var spread=new float[10];for(int i=0;i<stones.Length;i++){rise[i]=30+(i*17%51);drop[i]=30+(i*11%31);spread[i]=(i%2==0?-1:1)*(30+i*29%81);fallTime=Mathf.Max(fallTime,SpiritStoneMotion.Duration(rise[i],drop[i]));stones[i]=Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SpiritDust),view,start.x,-start.y,32,32);stones[i].rectTransform.pivot=new Vector2(.5f,.5f);stones[i].name="Spirit Stone Drop";}
- float duration=fallTime+.45f;
- for(float elapsed=0;elapsed<duration;elapsed+=Time.deltaTime){if(version!=screenVersion)yield break;for(int i=0;i<stones.Length;i++){var r=stones[i].rectTransform;if(elapsed<fallTime){r.anchoredPosition=start+SpiritStoneMotion.Sample(elapsed,spread[i],rise[i],drop[i]);stones[i].color=new Color(1,1,1,Mathf.Clamp01(elapsed/.15f));}else{float fly=elapsed-fallTime;var landing=start+new Vector2(spread[i],-drop[i]);r.anchoredPosition=Vector2.Lerp(landing,destination,SpiritStoneMotion.EaseIn(fly/.3f));stones[i].color=new Color(1,1,1,1-Mathf.Clamp01((fly-.3f)/.15f));}}
- float progress=Mathf.Clamp01((elapsed-fallTime)/.3f);coinText.text=Rules.Save.coins.ToString();coinText.color=progress>0?gold:cream;yield return null;}
- if(version!=screenVersion)yield break;foreach(var stone in stones)if(stone!=null)Destroy(stone.gameObject);coinText.text=Rules.Save.coins.ToString();coinText.color=cream;UiFeedback.Float(Txt("+"+reward,view,510,100,180,42,29,gold),45,.85f);busy=false;nextAuto=Time.time+.25f;}
   void Breakthrough(){if(busy)return;int powerBefore=Rules.Attributes.Power;if(Rules.Breakthrough()){Rules.Store();Home();StartCoroutine(FinalRelicFeedback(Rules.Save.gear[0],true));Notify("渡劫成功！境界提升");ShowPowerChange(Rules.Attributes.Power-powerBefore);}else Notify(Rules.BreakthroughRequirement);}
 
  public void Skins(){if(!CanPlay||busy)return;auto=false;Clear();Img("Original/newGui/Character/bg/bg",view,0,0,750,1334);Txt("幻 境 阁",view,160,45,430,80,47,gold);Btn("返回",view,25,42,120,62,Home);string[] names={"少年秦羽","新生","岚羽"};string selected=Rules.Save.skin==0?"hero":Rules.Save.skin==1?"pig":"skinPreview";Anim(selected,Rules.Save.skin==2?"stand":"idle",view,70,160,610,600);Txt(names[Rules.Save.skin],view,120,715,510,63,35,gold);Txt("本地外观试穿",view,150,780,450,40,25,cream);for(int i=0;i<3;i++){int n=i;var card=Btn("",view,37+i*235,875,208,265,()=>{Rules.Save.skin=n;Rules.Store();Skins();},null,new Color(.17f,.31f,.29f,.9f));Anim(i==0?"hero":i==1?"pig":"skinPreview",i==2?"stand":"idle",card.transform,5,0,198,206);Txt(names[i],card.transform,4,207,200,49,26,n==Rules.Save.skin?gold:cream);}Btn("使用此外观",view,170,1195,410,80,()=>{Rules.Store();Home();},null);}
  public void ToggleBattleSpeed(){fightSpeed=fightSpeed%3+1;if(hero!=null)hero.Speed=fightSpeed;if(enemy!=null)enemy.Speed=fightSpeed;var button=view.Find("Battle Speed");if(button!=null)button.GetComponentInChildren<Text>().text="×"+fightSpeed+"  加速";}
- void FitGemFeedback(){if(ExpansionScreen!="gems"||!gemStage||!toastPanel)return;var panel=toastPanel.Find("Status Toast") as RectTransform;if(panel)panel.position=gemStage.TransformPoint(new Vector3(45,-4,0));}
- void Notify(string message){if(toastPanel!=null)Destroy(toastPanel.gameObject);toastPanel=Rect("Status Toast Layer",root,0,0,750,1334);FitPage(toastPanel);bool gems=ExpansionScreen=="gems"&&gemStage;float height=gems?50:100;var panel=Frame("Status Toast",toastPanel,45,1090,660,height,new Color(.02f,.08f,.1f,.97f));toast=Txt(message,panel,16,8,628,height-16,gems?22:26,cream);if(gems){toast.resizeTextForBestFit=true;toast.resizeTextMinSize=16;toast.resizeTextMaxSize=22;}FitGemFeedback();Destroy(toastPanel.gameObject,2.5f);}
+ void Notify(string message){if(toastPanel!=null)Destroy(toastPanel.gameObject);toastPanel=Rect("Status Toast Layer",root,0,0,750,1334);FitPage(toastPanel);toast=Txt(message,toastPanel,125,637,500,60,40,new Color(43f/255f,234f/255f,158f/255f),TextAnchor.MiddleCenter);toast.raycastTarget=false;StartCoroutine(ToastMotion(toast,toastPanel));}
+ // 提示纯文本：屏幕中间 0.3s 渐显并缓动上升 150px，停留 0.8s，0.2s 渐隐。
+ IEnumerator ToastMotion(Text label,RectTransform layer){
+  float scale=label.canvas?label.canvas.scaleFactor:1f;
+  var start=label.transform.position;var end=start+Vector3.up*(150f*scale);var color=label.color;float t=0;
+  while(t<.3f){t+=Time.unscaledDeltaTime;if(!label)yield break;
+   float k=Mathf.Clamp01(t/.3f),ease=1f-Mathf.Pow(1f-k,3f);
+   label.transform.position=Vector3.LerpUnclamped(start,end,ease);color.a=k;label.color=color;yield return null;}
+  if(!label)yield break;
+  label.transform.position=end;color.a=1f;label.color=color;
+  yield return new WaitForSecondsRealtime(.8f);
+  t=0;
+  while(t<.2f){t+=Time.unscaledDeltaTime;if(!label)yield break;
+   color.a=1f-Mathf.Clamp01(t/.2f);label.color=color;yield return null;}
+  if(layer)Destroy(layer.gameObject);
+ }
  void OnApplicationPause(bool pause){if(pause&&Rules!=null)Rules.Store();}
  void OnApplicationQuit(){if(Rules!=null)Rules.Store();}
 }

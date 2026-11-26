@@ -23,7 +23,7 @@ public partial class GxdlGame {
   if(busy||!CanPlay)return;Rules.RefreshDaily(DateTime.UtcNow);var stage=CurrentStage;
   if(!GuxuStageRules.CanEnter(stage,Rules.Save)){Notify("该挑战尚未解锁");return;}
   if(stage.mode==1&&Rules.Save.dungeonClaims[stage.contentId]>=3){Notify("今日收益次数已用尽，明日再来");return;}
-  auto=false;battle=true;busy=true;Clear();ExpansionScreen="battle";hero=null;enemy=null;combatArena=null;combatLower=null;combatBackdrop=null;displayedDamageDone=displayedDamageTaken=displayedHealingDone=0;DrawEncounterScene(stage);
+  auto=false;battle=true;busy=true;CloseScreen();Clear();ExpansionScreen="battle";hero=null;enemy=null;combatArena=null;combatLower=null;combatBackdrop=null;displayedDamageDone=displayedDamageTaken=displayedHealingDone=0;DrawEncounterScene(stage);
   combatArena=Rect("Battle Arena",view,0,0,750,1334);
   GuxuParticleFx.Sort(combatArena,-20);
   var simulation=GuxuStageRules.Begin(Rules,stage,Environment.TickCount);ActiveBattle=simulation;

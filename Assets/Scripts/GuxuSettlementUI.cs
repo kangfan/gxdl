@@ -70,6 +70,8 @@ public partial class GxdlGame {
  // prefab 版结算。宿主未就绪或 prefab 缺失时返回 false，回退旧弹窗。
  bool ShowBattleResultPrefab(GuxuBattle simulation,GuxuReward reward,bool paid,GuxuRewardReceipt receipt){
   var stage=simulation.Stage;
+  // 与旧路径一致：结算页出现前收起战斗 HUD，只留场景背景。
+  if(view!=null)foreach(Transform child in view)if(combatBackdrop==null||(child!=combatBackdrop.transform&&child.GetComponent<GuxuEncounterBackdrop>()==null))child.gameObject.SetActive(false);
   var page=OpenScreen<Gxdl.Modules.SettlementView>(Gxdl.Modules.UiScreens.Settlement);
   if(page==null)return false;
   CloseModal();

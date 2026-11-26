@@ -236,6 +236,7 @@ namespace Gxdl.EditorTools
                 Set(so, "titleText", FindText(contents, "Header/Title"));
                 Set(so, "progressText", FindText(contents, "Header/Progress"));
                 Set(so, "statusText", FindText(contents, "Header/Status"));
+                Set(so, "hintText", FindText(contents, "Tower Segment Index/Hint"));
                 Set(so, "rewardButton", Component<Button>(contents, "Header/Reward History"));
                 Set(so, "segmentLabel", FindText(contents, "Tower Segment Index/Segment"));
                 Set(so, "previousButton", Component<Button>(contents, "Tower Segment Index/Previous"));

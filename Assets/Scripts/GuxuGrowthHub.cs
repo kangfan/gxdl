@@ -18,9 +18,9 @@ public partial class GxdlGame {
   Clear();auto=false;battle=false;busy=false;ExpansionScreen="growth";Rules.EnsureExpansion();
   var hub=OpenScreen<GrowthHubView>(UiScreens.GrowthHub);
   if(hub==null)return false;
-  if(hub.Back)hub.Back.onClick.AddListener(Home);
-  if(hub.Dungeons)hub.Dungeons.onClick.AddListener(ShowDungeons);
-  if(hub.Loadout)hub.Loadout.onClick.AddListener(ShowLoadout);
+  if(hub.Back){hub.Back.onClick.RemoveAllListeners();hub.Back.onClick.AddListener(Home);}
+  if(hub.Dungeons){hub.Dungeons.onClick.RemoveAllListeners();hub.Dungeons.onClick.AddListener(ShowDungeons);}
+  if(hub.Loadout){hub.Loadout.onClick.RemoveAllListeners();hub.Loadout.onClick.AddListener(ShowLoadout);}
   // 顺序沿用旧页：锻造、境界、天赋、灵玉。
   hub.BindEntryCallbacks(i=>{switch(i){case 0:ShowForge();break;case 1:ShowRealmPage();break;case 2:ShowTalents();break;case 3:ShowGems();break;}});
   var entries=new GrowthHubView.EntryCell[4];

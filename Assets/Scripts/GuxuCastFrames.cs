@@ -16,7 +16,12 @@ public sealed class GuxuCastFrames {
  public float Progress=>Playing?Mathf.Clamp01(elapsed/data.ordinaryTimes[data.frames.Length-1]):0;
  public static float ReleaseTime=>data==null?.667f:data.ordinaryTimes[data.releaseFrame];
  public static float Duration=>data==null?2.45f:data.ordinaryTimes[data.frames.Length-1]+.08f;
- public static Sprite Talisman=>talisman;
+ public static Sprite Talisman {get{
+  if(talisman)return talisman;
+  var texture=Resources.Load<Texture2D>("Game/Guxu/Vfx/Actions/Video/talisman");
+  if(texture)talisman=Sprite.Create(texture,new Rect(0,0,texture.width,texture.height),new Vector2(.5f,.5f),100);
+  return talisman;
+ }}
  public GuxuCastFrames(RectTransform actor){
   if(data==null){var text=Resources.Load<TextAsset>(ResourcePath);if(!text)throw new InvalidOperationException("Missing approved unseal frame metadata.");var loaded=JsonUtility.FromJson<Data>(text.text);
    if(loaded==null||loaded.frames==null||loaded.frames.Length<8||loaded.visibleHeightPixels<=0||loaded.releaseFrame<0||loaded.releaseFrame>=loaded.frames.Length||loaded.ordinaryTimes==null||loaded.fullTimes==null||loaded.ordinaryTimes.Length!=loaded.frames.Length||loaded.fullTimes.Length!=loaded.frames.Length)throw new InvalidOperationException("Invalid unseal frame metadata.");

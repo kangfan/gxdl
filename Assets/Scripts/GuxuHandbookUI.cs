@@ -14,14 +14,29 @@ public partial class GxdlGame {
   var tag=Art(GuxuUiArt.Optional("handbook-stat-tag",true),p,x,y,265,112,false);tag.pixelsPerUnitMultiplier=1;
   Txt(label,p,x+20,y+24,225,30,23,ink);Txt(value,p,x+20,y+57,225,44,31,ink).name="Handbook "+label;
  }
- void ShowFinalResidence(){
-  if(busy)return;auto=false;var p=OpenHandbook("洞府 · 修行手记",745);
+ public void ShowFinalResidence(){
+  if(busy)return;auto=false;
+  if(ShowResidencePrefab())return;
+  var p=OpenHandbook("洞府 · 修行手记",745);
   Art(GuxuUiArt.Optional("handbook-residence-insert"),p,64,116,210,210).name="Residence Insert";
   Txt("古墟大陆 · 遗石初鸣",p,295,135,310,90,31,ink,TextAnchor.MiddleLeft);
   Txt("一符破古封，\n一剑问前尘。",p,295,236,310,74,26,ink,TextAnchor.MiddleLeft);
   HandbookStat(p,"当前境界",Rules.Realm.displayName,65,358);HandbookStat(p,"基础战力",Rules.Attributes.Power.ToString(),350,358);
-  SealButton("同行档案",p,65,625,260,68,ShowFinalCompanion);SealButton("好友与聊天",p,350,625,265,68,ShowSocial);
-  SealButton("重温开场",p,65,532,260,68,()=>{CloseModal();ReplayOpening();});SealButton("整理行囊",p,350,532,265,68,ShowBag,true);
+  SealButton("同行档案",p,65,545,260,68,ShowFinalCompanion);SealButton("好友与聊天",p,350,545,265,68,ShowSocial);
+  SealButton("排行榜",p,65,630,260,68,()=>{CloseModal();ShowRank();});SealButton("商城",p,350,630,265,68,()=>{CloseModal();ShowShop();},true);
+  SealButton("重温开场",p,65,460,260,68,()=>{CloseModal();ReplayOpening();});SealButton("整理行囊",p,350,460,265,68,ShowBag,true);
+ }
+ // prefab 版洞府。宿主未就绪或 prefab 缺失时返回 false，回退旧 OpenHandbook 构建。
+ bool ShowResidencePrefab(){
+  if(Gxdl.Core.GameBootstrap.Instance==null||Gxdl.Core.GameBootstrap.Instance.UiModules==null)return false;
+  var page=OpenScreen<Gxdl.Modules.ResidenceView>(Gxdl.Modules.UiScreens.Residence);
+  if(page==null)return false;
+  if(!page.IsComplete){CloseScreen();return false;}
+  // 排行榜/商城本身是 prefab 界面，OpenScreen 会先关当前页；旧弹窗类入口显式关页。
+  page.BindActions(()=>{CloseScreen();ReplayOpening();},ShowBag,ShowFinalCompanion,ShowSocial,
+   ShowRank,ShowShop,()=>{CloseScreen();Home();});
+  page.Apply(Gxdl.Modules.ResidenceView.ResidenceSnapshot.Capture(Rules));
+  return true;
  }
  void ShowFinalCompanion(){
   if(busy)return;auto=false;var p=OpenHandbook("阿篆 · 同行档案",720);

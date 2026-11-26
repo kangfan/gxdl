@@ -23,6 +23,7 @@ namespace Gxdl.Modules
         [SerializeField] Button[] slotButtons;
 
         [Header("阶级表")]
+        [SerializeField] RectTransform tablePanel;
         [SerializeField] Text tableTitle;
         [SerializeField] Text tableNote;
         [SerializeField] Transform rowRoot;
@@ -35,6 +36,12 @@ namespace Gxdl.Modules
 
         public Button Back => backButton;
         public Button CloseTable => closeTableButton;
+
+        public void ShowTable(bool visible)
+        {
+            if (tablePanel != null) tablePanel.gameObject.SetActive(visible);
+            if (closeTableButton != null) closeTableButton.gameObject.SetActive(visible);
+        }
 
         public void BindCallbacks(System.Action<int> onSlot, System.Action<int> onRow)
         {
@@ -51,6 +58,8 @@ namespace Gxdl.Modules
             {
                 var entry = snapshot.Entries[i];
                 Set(slotNames, i, entry.Name);
+                if (slotIcons != null && i < slotIcons.Length && slotIcons[i] != null)
+                    slotIcons[i].sprite = GuxuUiArt.Item(i);
                 if (slotButtons != null && i < slotButtons.Length && slotButtons[i] != null)
                     slotButtons[i].interactable = entry.Enabled;
             }

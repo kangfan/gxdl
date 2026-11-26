@@ -93,9 +93,19 @@ public partial class GxdlGame {
   var colors=b.colors;colors.normalColor=colors.selectedColor=colors.disabledColor=Color.clear;
   colors.highlightedColor=new Color(1,1,1,.07f);colors.pressedColor=new Color(.05f,.02f,0,.22f);colors.fadeDuration=0;b.colors=colors;return b;
  }
+ // 关闭战前准备后回到进入本页的来源，避免关闭后整屏空白。
+ void CloseBattlePrep(GuxuStage stage){
+  CloseScreen();CloseModal();
+  switch(ExpansionScreen){
+   case "chapter":ShowChapter(chapterRegion);break;
+   case "dungeon":ShowDungeon(difficultyKind);break;
+   case "tower":ShowTower();break;
+   case "battle":ReturnToEncounter(stage);break;
+   default:Home();break;
+  }
+ }
  // prefab 版战前准备。宿主未就绪或 prefab 缺失时返回 false，回退旧弹窗。
- bool DrawBattlePreparationPrefab(GuxuStage stage){
-  CloseModal();
+ bool DrawBattlePreparationPrefab(GuxuStage stage){  CloseModal();
   var page=OpenScreen<Gxdl.Modules.BattlePrepView>(Gxdl.Modules.UiScreens.BattlePrep);
   if(page==null)return false;
   // 选技能只重刷技能区，不重建整页，避免图标闪烁。
@@ -103,10 +113,10 @@ public partial class GxdlGame {
    Rules.Save.activeSkill=skill;Rules.Store();page.SetSkill(skill);
    page.Apply(new Gxdl.Modules.BattlePrepView.Model{SelectedSkill=skill,SkillDetail=GameRules.SkillDetails[skill]});
   });
-  if(page.Close)page.Close.onClick.AddListener(()=>{CloseScreen();CloseModal();if(ExpansionScreen=="battle")ReturnToEncounter(stage);});
-  if(page.Growth)page.Growth.onClick.AddListener(()=>{CloseScreen();ShowGrowthHub();});
-  if(page.AutoSkill)page.AutoSkill.onClick.AddListener(()=>{Rules.Save.autoSkill=!Rules.Save.autoSkill;Rules.Store();page.SetSkillMode(Rules.Save.autoSkill);});
-  if(page.Challenge)page.Challenge.onClick.AddListener(StartBattle);
+  if(page.Close){page.Close.onClick.RemoveAllListeners();page.Close.onClick.AddListener(()=>CloseBattlePrep(stage));}
+  if(page.Growth){page.Growth.onClick.RemoveAllListeners();page.Growth.onClick.AddListener(()=>{CloseScreen();ShowGrowthHub();});}
+  if(page.AutoSkill){page.AutoSkill.onClick.RemoveAllListeners();page.AutoSkill.onClick.AddListener(()=>{Rules.Save.autoSkill=!Rules.Save.autoSkill;Rules.Store();page.SetSkillMode(Rules.Save.autoSkill);});}
+  if(page.Challenge){page.Challenge.onClick.RemoveAllListeners();page.Challenge.onClick.AddListener(StartBattle);}
   page.Apply(BattlePrepModel(stage));
   return true;
  }

@@ -18,27 +18,43 @@ public partial class GxdlGame {
  // prefab 版古塔。宿主未就绪或 prefab 缺失时返回 false，回退旧构建。
  bool ShowTowerPrefab(){
   var bootstrap=Gxdl.Core.GameBootstrap.Instance;if(bootstrap==null||bootstrap.UiModules==null)return false;
-  CloseScreen(); // 先收起残留的 prefab 页，避免两页同时在屏。
-  var page=OpenScreen<Gxdl.Modules.TowerView>(Gxdl.Modules.UiScreens.Tower);if(page==null)return false;  auto=false;battle=false;ExpansionScreen="tower";
+  auto=false;battle=false;ExpansionScreen="tower";
+  var page=OpenScreen<Gxdl.Modules.TowerView>(Gxdl.Modules.UiScreens.Tower);if(page==null)return false;
   int selection=Mathf.Clamp(towerSelection,towerPage*10+1,towerPage*10+10),next=towerPage<9?(towerPage+1)*10+1:0;
-  var floors=new Gxdl.Modules.TowerView.FloorCell[10];var markers=new Gxdl.Modules.TowerView.MarkerCell[10];
-  for(int index=0;index<10;index++){
-   int floor=towerPage*10+index+1;var stage=Stages.tower[floor-1];bool open=GuxuStageRules.CanEnter(stage,Rules.Save),cleared=floor<Rules.Save.towerFloor;
-   floors[index]=new Gxdl.Modules.TowerView.FloorCell{Label="第 "+floor+" 层",Unlocked=open,Cleared=cleared,Selected=floor==selection,Boss=stage.boss,Target=open&&!cleared&&floor==selection};
-   markers[index]=new Gxdl.Modules.TowerView.MarkerCell{Label=(floor%10==0?"◆ ":"")+floor+"层"+(floor%10==0?" Boss":""),Current=floor==Rules.Save.towerFloor};
-  }
   if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(()=>{if(towerFromDungeons)ShowDungeons();else ShowWorldMap();});}
-  if(page.RewardHistory)page.RewardHistory.onClick.AddListener(()=>ShowRewardHistory("tower",0));
+  if(page.RewardHistory){page.RewardHistory.onClick.RemoveAllListeners();page.RewardHistory.onClick.AddListener(()=>ShowRewardHistory("tower",0));}
   page.BindFloorCallbacks(floor=>{SelectTowerFloor(floor);});
   // 索引跳转沿用旧 FocusTowerFloor；翻段调用 ShowTower 复用本分支。
   page.BindMarkerCallbacks(floor=>{SelectTowerFloor(floor);page.ScrollToFloor(floor-(towerPage*10+1));});
+  page.BindSegment(
+   ()=>{if(towerPage<=0)return;towerPage--;towerSelection=towerPage*10+1;ShowTower();},
+   ()=>{if(towerPage>=9)return;towerPage++;towerSelection=towerPage*10+1;ShowTower();});
   if(page.Growth)page.Growth.onClick.AddListener(ShowGrowthHub);
-  if(page.Challenge){page.Challenge.onClick.RemoveAllListeners();page.Challenge.onClick.AddListener(()=>ShowBattlePrep(Stages.tower[selection-1]));}
+  if(page.Challenge){page.Challenge.onClick.RemoveAllListeners();page.Challenge.onClick.AddListener(()=>ShowBattlePrep(Stages.tower[Mathf.Clamp(towerSelection,1,100)-1]));}
   page.SetHeader(towerFromDungeons?"‹ 返回秘境":"‹ 返回寻墟","通天古塔","已登临 "+(Rules.Save.towerFloor-1)+" / 100 层",Rules.Save.towerFloor>100?"百层已通关":"当前目标 · 第 "+Rules.Save.towerFloor+" 层","滑动攀登");
-  page.SetFloors(floors);page.SetMarkers(markers);
+  page.SetFloors(TowerFloorCells(selection));page.SetMarkers(TowerMarkerCells());
+  page.ApplyFloorSkin(GuxuUiArt.Optional("tower-tier"));
   page.SetSegment((towerPage*10+1)+"—"+(towerPage*10+10)+"层",towerPage>0?"‹ "+((towerPage-1)*10+1)+"—"+(towerPage*10):"已到底层",towerPage>0,next>0?next+"—"+(next+9)+" ›":"已到百层",towerPage<9);
   page.SetDetail(TowerDetailCell(selection));page.ScrollToFloor(selection-(towerPage*10+1));
+  // 记录本页对应的进度段，翻段后 ShowTower 不再把页码重置回当前进度。
+  towerKnownProgress=Rules.Save.towerFloor;
   return true;
+ }
+ Gxdl.Modules.TowerView.FloorCell[] TowerFloorCells(int selection){
+  var floors=new Gxdl.Modules.TowerView.FloorCell[10];
+  for(int index=0;index<10;index++){
+   int floor=towerPage*10+index+1;var stage=Stages.tower[floor-1];bool open=GuxuStageRules.CanEnter(stage,Rules.Save),cleared=floor<Rules.Save.towerFloor;
+   floors[index]=new Gxdl.Modules.TowerView.FloorCell{Label="第 "+floor+" 层",Unlocked=open,Cleared=cleared,Selected=floor==selection,Boss=stage.boss,Target=open&&!cleared&&floor==selection};
+  }
+  return floors;
+ }
+ Gxdl.Modules.TowerView.MarkerCell[] TowerMarkerCells(){
+  var markers=new Gxdl.Modules.TowerView.MarkerCell[10];
+  for(int index=0;index<10;index++){
+   int floor=towerPage*10+index+1;
+   markers[index]=new Gxdl.Modules.TowerView.MarkerCell{Label=(floor%10==0?"◆ ":"")+floor+"层"+(floor%10==0?" Boss":""),Current=floor==Rules.Save.towerFloor};
+  }
+  return markers;
  }
  Gxdl.Modules.TowerView.DetailCell TowerDetailCell(int floor){
   var stage=Stages.tower[floor-1];bool open=GuxuStageRules.CanEnter(stage,Rules.Save),first=floor>=Rules.Save.towerFloor;
@@ -83,6 +99,14 @@ public partial class GxdlGame {
   else Txt("当前目标",b.transform,198,108,150,34,23,gold);
  }
  void SelectTowerFloor(int floor){
+  var page=activeModule as Gxdl.Modules.TowerView;
+  if(page!=null){
+   // prefab 页没有 towerScroll；直接刷新这一段的十层与底部详情。
+   towerSelection=Mathf.Clamp(floor,1,100);
+   page.SetFloors(TowerFloorCells(towerSelection));
+   page.SetDetail(TowerDetailCell(towerSelection));
+   return;
+  }
   towerSelection=floor;foreach(Transform child in towerScroll.content){var ring=child.Find("Tower Selection Glow");if(ring)ring.gameObject.SetActive(child.name=="Tower Floor "+floor);}DrawTowerSelection();
  }
  void FocusTowerFloor(){Canvas.ForceUpdateCanvases();float y=50+(9-(towerSelection-1)%10)*TowerFloorStep+100;towerScroll.StopMovement();towerScroll.content.anchoredPosition=new Vector2(0,Mathf.Clamp(y-towerViewport.rect.height*.72f,0,Mathf.Max(0,TowerContentHeight-towerViewport.rect.height)));}

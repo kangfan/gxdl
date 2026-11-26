@@ -21,45 +21,66 @@ public partial class GxdlGame {
  public void Home(){
  if(!CanPlay)return;
  battle=false;busy=resolvingDrop;Clear();hero=null;enemy=null;ActiveBattle=null;ExpansionScreen="home";selectedStage=null;Rules.EnsureExpansion();
- var scene=Art(GuxuUiArt.Optional("screen-home")??Sprite("Game/Guxu/Final/background"),view,0,0,750,1334,false);GuxuParticleFx.Sort(scene.transform,-40);
+ if(ShowHomePrefab())return;
+ var scene=Art(GuxuUiArt.Optional("home-bg")??GuxuUiArt.Optional("screen-home")??Sprite("Game/Guxu/Final/background"),view,0,0,750,1334,false);GuxuParticleFx.Sort(scene.transform,-40);
  view.gameObject.AddComponent<GuxuFinalAtmosphere>();DrawRuinsMap();
- var inscription=Txt("古墟大陆",view,420,959,126,26,20,new Color(.35f,.39f,.32f));inscription.name="Platform Inscription";
- var inset=inscription.gameObject.AddComponent<Shadow>();inset.effectColor=new Color(.96f,.87f,.59f,.7f);inset.effectDistance=new Vector2(0,-1);
- var groundShadow=Rect("Seeker Ground Shadow",view,112,1092,166,36).gameObject.AddComponent<GuxuSoftVfx>();groundShadow.raycastTarget=false;groundShadow.color=new Color(.035f,.08f,.09f,.20f);GuxuParticleFx.Sort(groundShadow.transform,-31);
- seeker=Img("Game/Guxu/Final/Hero/hero",view,-25,513,400,527);seeker.preserveAspect=true;seeker.name="Seeker Character Layer";
- ancientStone=Img("Game/Guxu/Final/stone",view,425,505,190,210);ancientStone.preserveAspect=true;ancientStone.name="Sealed Stone Layer";
- var companion=Rect("Companion A Zhuan",view,515,390,145,125).gameObject.AddComponent<GuxuCompanionMotion>();companion.raycastTarget=false;
+ var groundShadow=Rect("Seeker Ground Shadow",view,112,955,166,36).gameObject.AddComponent<GuxuSoftVfx>();groundShadow.raycastTarget=false;groundShadow.color=new Color(.035f,.08f,.09f,.20f);GuxuParticleFx.Sort(groundShadow.transform,-31);
+ seeker=Img("Game/Guxu/Final/Hero/hero",view,-25,440,400,527);seeker.preserveAspect=true;seeker.name="Seeker Character Layer";
+ ancientStone=Img("",view,430,455,200,220);ancientStone.preserveAspect=true;ancientStone.name="Sealed Stone Layer";
+ var companion=Rect("Companion A Zhuan",view,515,300,145,125).gameObject.AddComponent<GuxuCompanionMotion>();companion.raycastTarget=false;
  unsealAnimation=view.gameObject.AddComponent<GuxuAnimation>();unsealAnimation.Bind(seeker,ancientStone,view);RefreshSealPresentation();
  GuxuParticleFx.Sort(seeker.transform,-20);GuxuParticleFx.Sort(ancientStone.transform,-20);GuxuParticleFx.Sort(companion.transform,-20);GuxuFootCloud.Attach(seeker);
- if(Rules.Save.pending!=null){var relic=Art(GuxuUiArt.Item(Rules.Save.pending.slot),view,437,500,150,150);relic.name="Pending Relic Display";}
- Header();DrawAccountEntry();
+ if(Rules.Save.pending!=null){var relic=Art(GuxuUiArt.Item(Rules.Save.pending.slot),view,450,470,150,150);relic.name="Pending Relic Display";}
+ Header();
 
- FinalSideEntry("鉴宝台","home-entry-appraisal",GuxuUiArt.Icon.Codex,630,210,TreeUpgrade);
- FinalSideEntry("资源秘境","home-entry-dungeons",GuxuUiArt.Icon.Explore,630,350,ShowDungeons);
- FinalSideEntry("背包","home-entry-bag",GuxuUiArt.Icon.Inventory,630,490,ShowBag);
+ if(accounts&&CanPlay)FinalSideEntry("账号","",GuxuUiArt.Icon.Codex,630,84,ShowAccountPanel);
+ FinalSideEntry("商城","home-entry-shop",GuxuUiArt.Icon.Sect,630,220,ShowShop);
+ FinalSideEntry("鉴宝台","home-entry-appraisal",GuxuUiArt.Icon.Codex,630,356,TreeUpgrade);
+ FinalSideEntry("资源秘境","home-entry-dungeons",GuxuUiArt.Icon.Explore,630,492,ShowDungeons);
+ FinalSideEntry("背包","home-entry-bag",GuxuUiArt.Icon.Inventory,630,628,ShowBag);
 
- unsealButton=HudAction("Unseal",view,320,751,300,88,Chop);
- var unsealArt=Art(GuxuUiArt.Optional("hud-unseal-button",true),unsealButton.transform,0,4,300,80,false);unsealArt.name="Unseal Gold Art";unsealArt.pixelsPerUnitMultiplier=.8f;unsealButton.targetGraphic=unsealArt;
- Txt("破  封",unsealButton.transform,25,4,250,80,36,new Color(.25f,.14f,.05f)).name="Unseal Label";
- Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SealToken),view,408,840,32,32);
- homeSealCost=HudText("消耗 ×1",view,449,837,168,38,24,cream);homeSealCost.name="Seal Token Cost";
- homeAutoButton=HudToggle(auto?"停止自动":"自动破封",auto?"停止自动":"自动破封",view,315,875,188,88,auto,ToggleAuto);
- homeRetentionButton=HudAction("保留规则",view,510,875,132,88,AutoSettings);HudText("保留规则 ›",homeRetentionButton.transform,0,0,132,88,24,cream,TextAnchor.MiddleCenter);
+ unsealButton=HudAction("Unseal",view,195,790,360,92,Chop);
+ var unsealArt=Art(GuxuUiArt.Optional("hud-unseal-button",true),unsealButton.transform,0,6,360,80,false);unsealArt.name="Unseal Gold Art";unsealArt.pixelsPerUnitMultiplier=.8f;unsealButton.targetGraphic=unsealArt;
+ Txt("破  封",unsealButton.transform,55,6,250,80,40,new Color(.25f,.14f,.05f)).name="Unseal Label";
+ Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SealToken),view,318,895,30,30);
+ homeSealCost=HudText("消耗 ×1",view,356,892,160,36,24,cream);homeSealCost.name="Seal Token Cost";
+ homeAutoButton=HudToggle(auto?"停止自动":"自动破封",auto?"停止自动":"自动破封",view,205,930,225,72,auto,ToggleAuto);
+ homeRetentionButton=HudAction("保留规则",view,445,930,150,72,AutoSettings);HudText("保留规则 ›",homeRetentionButton.transform,0,0,150,72,24,cream,TextAnchor.MiddleCenter);
  RefreshSealPresentation();
  ShowDrop();
  if(Rules.Save.pending==null){
-  bool complete=Rules.Save.stage>Stages.stages.Length;var mission=HudAction("GoQuestTarget",view,44,1034,662,146,Adventure);homeQuestButton=mission;
-  HudText(complete?"主线 · 已通关":"主线 · "+CurrentStage.regionName,mission.transform,0,0,620,42,30,gold).name="Main Quest Title";
+  bool complete=Rules.Save.stage>Stages.stages.Length;var mission=HudAction("GoQuestTarget",view,40,1020,662,146,Adventure);homeQuestButton=mission;
+  HomeText(complete?"主线 · 已通关":"主线 · "+CurrentStage.regionName,mission.transform,0,0,620,42,30,new Color(.52f,.36f,.08f)).name="Main Quest Title";
   string target=complete?"重访遗域":"前往 "+CurrentStage.regionName;
-  var targetText=HudText(target+" ›",mission.transform,0,42,620,46,30,new Color(.48f,1,.85f));targetText.name="Main Quest Target";
-  float lineWidth=Mathf.Min(620,targetText.preferredWidth);Img("",mission.transform,0,85,lineWidth,2,new Color(.48f,1,.85f)).name="Main Quest Underline";
-  HudText(complete?"主线已通关 · 可继续挑战古塔与秘境":"目标："+CurrentStage.guardianName+" · 第 "+CurrentStage.id+" / "+Stages.stages.Length+" 关",mission.transform,0,96,640,40,25,cream).name="Main Quest Progress";
+  var targetText=HomeText(target+" ›",mission.transform,0,42,620,46,30,new Color(.05f,.36f,.30f));targetText.name="Main Quest Target";
+  HomeText(complete?"主线已通关 · 可继续挑战古塔与秘境":"目标："+CurrentStage.guardianName+" · 第 "+CurrentStage.id+" / "+Stages.stages.Length+" 关",mission.transform,0,96,640,40,25,ink).name="Main Quest Progress";
   mission.gameObject.SetActive(!busy&&!resolvingDrop);
  }
  string[] names={"洞府","修行","寻墟","图鉴","战备"};
  GuxuUiArt.Icon[] icons={GuxuUiArt.Icon.Sect,GuxuUiArt.Icon.Cultivation,GuxuUiArt.Icon.Ruins,GuxuUiArt.Icon.Codex,GuxuUiArt.Icon.Companion};
- Img("",view,0,1225,750,109,new Color(.055f,.15f,.20f,.95f));Img("",view,0,1225,750,2,new Color(.75f,.63f,.37f,.8f));
+ var navSkin=Art(GuxuUiArt.Optional("ui23-panel-dark",true),view,-12,1218,774,121,false);navSkin.name="Navigation Panel";if(navSkin.sprite)navSkin.pixelsPerUnitMultiplier=1.4f;
  for(int i=0;i<5;i++){int tab=i;var nav=Rect("Tab "+names[i],view,i*150,1225,150,109);if(i==2){var glow=Rect("Selected Tab Light",nav,15,-16,120,105).gameObject.AddComponent<GuxuSoftVfx>();glow.raycastTarget=false;glow.color=new Color(1,.76f,.28f,.25f);}Art(GuxuUiArt.Navigation(icons[i]),nav,34,-12,82,82);Txt(names[i],nav,5,65,140,36,25,gold);Btn("",nav,0,0,150,109,()=>Navigate(tab),null,Color.clear).name=names[i];}
+ }
+ // prefab 版主界面。宿主未就绪或 prefab 缺失时返回 false，回退旧构建。
+ bool ShowHomePrefab(){
+  if(Gxdl.Core.GameBootstrap.Instance==null||Gxdl.Core.GameBootstrap.Instance.UiModules==null)return false;
+  var page=OpenScreen<Gxdl.Modules.HomeView>(Gxdl.Modules.UiScreens.Home);
+  if(page==null)return false;
+  if(!page.IsComplete){CloseScreen();return false;}
+  // 旧的刷新方法仍以这些字段为入口，这里指向 prefab 节点，避免两套数据口径。
+  unsealButton=page.Unseal;homeAutoButton=page.Auto;homeRetentionButton=page.Retention;homeQuestButton=page.Quest;
+  homeTokens=page.SealTokenText;homePower=page.PowerText;coinText=page.SpiritStoneText;homeSealCost=page.SealCostText;
+  seeker=page.Seeker;ancientStone=page.Stone;spiritDustIcon=page.SpiritStoneIcon;
+  page.BindNavigation(Navigate);
+  page.BindActions(ShowRename,ShowRealmPage,ShowAccountPanel,ShowShop,TreeUpgrade,ShowDungeons,ShowBag,Chop,ToggleAuto,AutoSettings,Adventure,
+   ()=>ResolveDrop(false),()=>ResolveDrop(true));
+  unsealAnimation=page.GetComponent<GuxuAnimation>();if(!unsealAnimation)unsealAnimation=page.gameObject.AddComponent<GuxuAnimation>();
+  unsealAnimation.Bind(seeker,ancientStone,page.transform as RectTransform);
+  GuxuFootCloud.Attach(seeker);
+  page.gameObject.AddComponent<GuxuFinalAtmosphere>();
+  GuxuParticleFx.Sort(page.Seeker.transform,-20);GuxuParticleFx.Sort(page.Stone.transform,-20);GuxuParticleFx.Sort(page.Companion,-20);
+  page.Apply(Gxdl.Modules.HomeView.HomeSnapshot.Capture(Rules,PlayerNickname,auto,busy,accounts!=null));
+  return true;
  }
  void FinalSideEntry(string label,string key,GuxuUiArt.Icon icon,float x,float y,Action action){
   var root=Rect("Entry "+label,view,x,y,108,130);var sprite=GuxuUiArt.Optional(key);
@@ -68,52 +89,112 @@ public partial class GxdlGame {
  }
  void RefreshSealPresentation(){
   bool ready=Rules.Save.pending==null&&!resolvingDrop;
-  if(ancientStone)ancientStone.enabled=ready;
+  if(ancientStone)ancientStone.enabled=ready&&ancientStone.sprite;
+  if(activeModule is Gxdl.Modules.HomeView home){
+   home.ApplySeal(Gxdl.Modules.HomeView.HomeSnapshot.CaptureSeal(Rules,auto,busy||resolvingDrop));
+   if(homeQuestButton)homeQuestButton.gameObject.SetActive(ready&&!busy);
+   return;
+  }
   if(unsealButton){unsealButton.interactable=ready&&Rules.Save.peaches>0;unsealButton.GetComponentInChildren<Text>().text=Rules.Save.peaches>0?"破  封":"破封符不足";}
   if(homeSealCost){homeSealCost.text=Rules.Save.peaches>0?"消耗 ×1":"消耗 ×1 · 不足";homeSealCost.color=Rules.Save.peaches>0?cream:new Color(1,.63f,.40f);}
   if(homeAutoButton)homeAutoButton.interactable=auto||!busy&&!resolvingDrop&&ready&&Rules.Save.peaches>0;
   if(homeRetentionButton)homeRetentionButton.interactable=!busy;
   if(homeQuestButton)homeQuestButton.gameObject.SetActive(ready&&!busy);
  }
- void RefreshHomeBalances(){if(ExpansionScreen!="home")return;if(homeTokens)homeTokens.text=Rules.Save.peaches.ToString();if(homePower)homePower.text="基础战力  "+Rules.Attributes.Power;if(coinText)coinText.text=Rules.Save.coins.ToString();if(homeAutoButton){homeAutoButton.name=auto?"停止自动":"自动破封";RefreshHudToggle(homeAutoButton,auto,homeAutoButton.name);}RefreshSealPresentation();}
+ void RefreshHomeBalances(){if(ExpansionScreen!="home")return;if(homeTokens)homeTokens.text=Rules.Save.peaches.ToString();if(homePower)homePower.text="基础战力  "+Rules.Attributes.Power;if(coinText)coinText.text=Rules.Save.coins.ToString();if(homeAutoButton){homeAutoButton.name=auto?"停止自动":"自动破封";if(!(activeModule is Gxdl.Modules.HomeView))RefreshHudToggle(homeAutoButton,auto,homeAutoButton.name);}RefreshSealPresentation();}
  void Header(){
   var head=Rect("Player HUD",view,24,12,702,108);HudPortrait(head,0,3,84,"Home Player Portrait");HudAction("Rename Player",head,0,0,88,100,ShowRename);
-  var identity=HudText("等级"+Rules.Save.level+"  "+PlayerNickname,head,98,0,255,32,27,cream);identity.name="Player Identity";identity.resizeTextForBestFit=true;identity.resizeTextMinSize=16;identity.supportRichText=false;
-  homePower=HudText("基础战力  "+Rules.Attributes.Power,head,98,32,255,34,28,gold);homePower.name="Player Power";
-  HudText(Rules.Realm.displayName,head,98,68,255,32,25,cream).name="Player Realm";
+  var identity=HomeText("等级"+Rules.Save.level+"  "+PlayerNickname,head,98,0,255,32,27,ink);identity.name="Player Identity";identity.resizeTextForBestFit=true;identity.resizeTextMinSize=16;identity.supportRichText=false;
+  homePower=HomeText("基础战力  "+Rules.Attributes.Power,head,98,32,255,34,28,new Color(.45f,.31f,.10f));homePower.name="Player Power";
+  HomeText(Rules.Realm.displayName,head,98,68,255,32,25,ink).name="Player Realm";
   Art(GuxuUiArt.Optional("hud-flourish"),head,258,93,80,20,false);
   HudAction("Cultivation Header",head,94,0,260,104,ShowCultivation);
-  Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SealToken),head,365,20,37,37);homeTokens=HudText(Rules.Save.peaches.ToString(),head,405,14,120,45,27,cream);homeTokens.name="Seal Token Balance";
-  spiritDustIcon=Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SpiritDust),head,535,20,37,37);spiritDustIcon.name="Spirit Dust Icon";coinText=HudText(Rules.Save.coins.ToString(),head,574,14,128,45,27,cream);coinText.name="Spirit Stone Balance";
+  Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SealToken),head,400,20,37,37);homeTokens=HomeText(Rules.Save.peaches.ToString(),head,440,14,100,45,27,ink);homeTokens.name="Seal Token Balance";
+  spiritDustIcon=Art(GuxuUiArt.Navigation(GuxuUiArt.Icon.SpiritDust),head,545,20,37,37);spiritDustIcon.name="Spirit Dust Icon";coinText=HomeText(Rules.Save.coins.ToString(),head,585,14,110,45,27,ink);coinText.name="Spirit Stone Balance";
   // Keep even ten-digit balances inside their own groups; identity never shares their rects.
   foreach(var amount in new[]{homeTokens,coinText}){amount.resizeTextForBestFit=true;amount.resizeTextMinSize=20;amount.resizeTextMaxSize=27;}
   Art(GuxuUiArt.Optional("hud-flourish"),head,432,58,72,18,false);Art(GuxuUiArt.Optional("hud-flourish"),head,612,58,72,18,false);
  }
+ // Bright sky background: dark ink text with a light halo instead of the HUD's dark outline.
+ Text HomeText(string value,Transform parent,float x,float y,float width,float height,int size,Color color){
+  var text=Txt(value,parent,x,y,width,height,size,color,TextAnchor.MiddleLeft);var halo=text.gameObject.AddComponent<Shadow>();halo.effectColor=new Color(1f,.99f,.94f,.9f);halo.effectDistance=new Vector2(1,-1);return text;
+ }
  void ShowDrop(){
   if(lootPanel!=null)Destroy(lootPanel.gameObject);lootPanel=null;var g=Rules.Save.pending;if(g==null)return;
-  lootPanel=HomePaperPanel("Relic Decision",15,983,720,224);GearCard(g,lootPanel,20,36,118,143);
-  Txt(Rules.GearName(g)+" · "+GuxuUiArt.TierLabel(g.quality,g.level),lootPanel,158,25,350,38,27,ink,TextAnchor.MiddleLeft);
-  int delta=Rules.AttributesWithGear(g).Power-Rules.Attributes.Power;Txt(delta==0?"基础战力不变":("基础战力 "+(delta>0?"↑ +":"↓ ")+delta),lootPanel,158,71,350,42,31,delta==0?ink:delta>0?new Color(.1f,.43f,.26f):new Color(.7f,.2f,.12f),TextAnchor.MiddleLeft);
-  Txt("攻击力 +"+g.attack+"   生命值 +"+g.hp+"\n"+GameRules.GearAffix(Rules.Save.gear[g.slot])+" → "+GameRules.GearAffix(g),lootPanel,158,126,350,68,23,ink,TextAnchor.MiddleLeft).name="Drop Affix Comparison";
-  SealButton("分解",lootPanel,535,35,160,65,()=>ResolveDrop(false)).name="Resolve Equipment";SealButton("装备",lootPanel,535,125,160,65,()=>ResolveDrop(true),true).name="Equip Relic";
+  // 金纹横幅弹窗（Art/洞府 弹窗效果图）。prefab 版结构一致，仅旧构建走这里。
+  lootPanel=Rect("Relic Decision",view,25,900,700,316);
+  var surface=Art(GuxuUiArt.Optional("relic-modal-panel"),lootPanel,0,0,700,316,false);surface.name="Modal Paper";
+  if(surface.sprite==null)surface.color=new Color(.94f,.92f,.84f,.98f);
+  surface.raycastTarget=true;
+  GearCard(g,lootPanel,60,63,139,139);
+  Txt(Rules.GearName(g)+" · "+GuxuUiArt.TierLabel(g.quality,g.level),lootPanel,217,48,291,40,26,new Color(.20f,.20f,.20f),TextAnchor.MiddleLeft);
+  int delta=Rules.AttributesWithGear(g).Power-Rules.Attributes.Power;Txt(delta==0?"基础战力不变":("基础战力 "+(delta>0?"↑ +":"↓ ")+delta),lootPanel,217,92,264,47,30,delta==0?new Color(.36f,.32f,.28f):delta>0?new Color(.40f,.25f,.09f):new Color(.7f,.2f,.12f),TextAnchor.MiddleLeft);
+  Txt("攻击力 +"+g.attack+"   生命值 +"+g.hp+"\n"+GameRules.GearAffix(Rules.Save.gear[g.slot])+" → "+GameRules.GearAffix(g),lootPanel,228,163,253,68,20,new Color(.36f,.32f,.28f),TextAnchor.MiddleLeft).name="Drop Affix Comparison";
+  var dismantle=SealButton("分解",lootPanel,512,100,178,60,()=>ResolveDrop(false));dismantle.name="Resolve Equipment";SkinSealButton(dismantle,"relic-btn-teal",new Color(.98f,.96f,.89f));
+  var equip=SealButton("装备",lootPanel,512,178,178,64,()=>ResolveDrop(true));equip.name="Equip Relic";SkinSealButton(equip,"relic-btn-gold",new Color(.26f,.17f,.06f));
+ }
+ // 弹窗按钮换皮：保留 SealButton 的回调结构，只替换底图与文字颜色。
+ void SkinSealButton(Button button,string key,Color textColor){
+  var image=button.image;if(image){var sprite=GuxuUiArt.Optional(key);if(sprite){image.sprite=sprite;image.type=Image.Type.Simple;image.pixelsPerUnitMultiplier=1f;}}
+  var label=button.GetComponentInChildren<Text>();if(label)label.color=textColor;
  } int TableCost()=>Rules.TreeUpgradeCost;
- void ToggleAuto(){if(auto){auto=false;if(homeAutoButton){homeAutoButton.name="自动破封";RefreshHudToggle(homeAutoButton,false,"自动破封");homeAutoButton.interactable=!busy&&!resolvingDrop&&Rules.Save.pending==null&&Rules.Save.peaches>0;}return;}if(!CanPlay||busy||battle||modal!=null||resolvingDrop)return;if(Rules.Save.pending!=null){Notify("请先处理当前遗宝");return;}if(Rules.Save.peaches<=0){Notify("破封符不足");return;}auto=true;nextAuto=Time.time;Home();}
+ void ToggleAuto(){if(auto){auto=false;if(homeAutoButton){homeAutoButton.name="自动破封";if(activeModule is Gxdl.Modules.HomeView)RefreshSealPresentation();else{RefreshHudToggle(homeAutoButton,false,"自动破封");homeAutoButton.interactable=!busy&&!resolvingDrop&&Rules.Save.pending==null&&Rules.Save.peaches>0;}}return;}if(!CanPlay||busy||battle||modal!=null||resolvingDrop)return;if(Rules.Save.pending!=null){Notify("请先处理当前遗宝");return;}if(Rules.Save.peaches<=0){Notify("破封符不足");return;}auto=true;nextAuto=Time.time;Home();}
  public bool ShouldKeep(Gear g)=>g.quality>=Mathf.Clamp(Rules.Save.keepQuality,1,5)||Rules.AttributesWithGear(g).Power>Rules.Attributes.Power;
  void Navigate(int tab){if(busy)return;auto=false;if(tab==0)ShowFinalResidence();else if(tab==1)ShowGrowthHub();else if(tab==2)ShowWorldMap();else if(tab==3)ShowCodex();else ShowLoadout();}
  void ShowCultivation()=>ShowRealmPage();
- void ShowBag(){
-  if(busy)return;auto=false;var p=OpenModal("背包 · 当前装备",740);
+ public void ShowBag(){
+  if(busy)return;auto=false;
+  if(ShowBagPrefab())return;
+  var p=OpenModal("背包 · 当前装备",740);
   var skin=p.Find("Modal Paper").GetComponent<Image>();skin.sprite=GuxuUiArt.Optional("panel-inventory",true)??PageArt("panel-dark");skin.type=Image.Type.Sliced;skin.pixelsPerUnitMultiplier=1;
   p.Find("Modal Header").GetComponent<Text>().color=cream;p.Find("Modal Separator").GetComponent<Image>().color=new Color(.56f,.61f,.58f,.5f);
   for(int i=0;i<12;i++){int slot=i;float x=42+i%4*154,y=112+i/4*174;GearCard(Rules.Save.gear[i],p,x,y,125,125,()=>ShowGear(slot));Txt(slots[i],p,x-4,y+128,133,34,24,cream);}
   Txt("点击装备查看属性 · 锻造等级随槽位保留",p,40,675,600,35,22,cream);
  }
+ // prefab 版背包。宿主未就绪或 prefab 缺失时返回 false，回退旧弹窗构建。
+ // 背包要透出主界面，不走 OpenScreen（它先关当前页）；主页 prefab 保留在背后。
+ bool ShowBagPrefab(){
+  var bootstrap=Gxdl.Core.GameBootstrap.Instance;
+  if(bootstrap==null||bootstrap.UiModules==null)return false;
+  var module=bootstrap.UiModules.Open(Gxdl.Modules.UiScreens.Bag);
+  var page=module as Gxdl.Modules.BagView;
+  if(page==null){if(module!=null)bootstrap.UiModules.Close(module.ModuleId);return false;}
+  if(!page.IsComplete){bootstrap.UiModules.Close(page.ModuleId);return false;}
+  activeModule=module;activeModulePage=(RectTransform)page.transform;
+  activeModulePage.SetParent(root,false);
+  FitPage(activeModulePage);
+  activeModulePage.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,750f);
+  activeModulePage.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,1334f);
+  var badges=new string[12];
+  for(int i=0;i<12;i++)badges[i]=Rules.Save.gear[i].level+"阶";
+  page.Apply(badges);
+  // 详情按钮接真实系统：锻造与灵玉镶嵌仍是旧弹窗，从背包页之上打开。
+  page.BindActions(()=>{page.CloseAnimated(()=>{CloseScreen();Home();});},
+   slot=>ShowBagDetail(page,slot),
+   slot=>{CloseBagDetail(page);ShowForge(slot);},
+   slot=>{CloseBagDetail(page);ShowGems(slot);},
+   ()=>page.HideDetail());
+  return true;
+ }
+ void ShowBagDetail(Gxdl.Modules.BagView page,int slot){
+  if(busy)return;var g=Rules.Save.gear[slot];int affix=Mathf.Clamp(g.affix,0,6);
+  page.ShowDetail(new Gxdl.Modules.BagView.GearDetail{
+   Slot=slot,
+   Badge=g.level+"阶",
+   Name=Rules.GearName(g),
+   Subtitle=slots[slot]+" · "+g.level+"阶 · "+quality[Mathf.Clamp(g.quality,1,5)],
+   Stats=new[]{"+"+g.attack,"+"+g.hp,"+"+g.defense,"+"+g.speed},
+   Affix="战斗词条："+GameRules.AffixNames[affix],
+   Desc="槽位锻造 +"+Rules.Save.forgeLevels[slot]+" · 点击锻造或镶嵌可继续强化该槽位",
+  });
+ }
+ void CloseBagDetail(Gxdl.Modules.BagView page)=>page.HideDetail();
 
 
  public void SkipCurrentUnseal(){if(unsealAnimation)unsealAnimation.SkipReveal();}
  IEnumerator ChopAnimation(){
   int version=screenVersion;var g=Rules.Save.pending;bool firstReward=PlayerPrefs.GetInt(FirstUnsealStoryKey,0)==0;
-  Button skip=null;if(g.quality>=4){skip=SealButton("跳过演出",view,548,947,177,43,SkipCurrentUnseal);skip.name="Skip Unseal";}
+  Button skip=null;if(g.quality>=4){skip=SealButton("跳过演出",view,548,activeModule is Gxdl.Modules.HomeView?748:947,177,43,SkipCurrentUnseal);skip.name="Skip Unseal";}
   yield return unsealAnimation.PlayUnseal(GuxuUiArt.Item(0),GuxuUiArt.Item(g.slot),g.quality);
   if(version!=screenVersion)yield break;
   // Retain the existing one-time weapon policy independently of the retired tutorial cinematic.

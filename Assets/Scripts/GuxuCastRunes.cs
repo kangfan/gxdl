@@ -19,7 +19,10 @@ public sealed class GuxuCastRuneField : MaskableGraphic {
  static readonly float[] GlyphPhase={0f,.34f,.55f,.78f,.9f};
  static readonly Color Gold=new Color(1,.75f,.29f,1),Cream=new Color(1,.96f,.75f,1),Rim=new Color(.42f,.16f,.02f,1);
 
- public GuxuCastRuneField(){useLegacyMeshGeneration=false;raycastTarget=false;}
+ // 构造函数里不能碰 gameObject：raycastTarget 的 setter 会去取 Canvas。
+ public GuxuCastRuneField(){useLegacyMeshGeneration=false;}
+
+ protected override void Awake(){base.Awake();raycastTarget=false;}
 
  public void SetState(float charge,float flight,float spin){
   Charge=Mathf.Clamp01(charge);Flight=Mathf.Clamp01(flight);Spin=spin;SetVerticesDirty();

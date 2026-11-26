@@ -5,7 +5,7 @@ using UnityEngine;
 using Gxdl;
 
 public class GxdlAssetImport:AssetPostprocessor {
- void OnPreprocessTexture(){if(!assetPath.StartsWith("Assets/Resources/Original/")&&!assetPath.StartsWith("Assets/Resources/Game/UI/"))return;var importer=(TextureImporter)assetImporter;importer.textureType=TextureImporterType.Default;importer.mipmapEnabled=false;importer.alphaIsTransparency=true;importer.maxTextureSize=8192;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.filterMode=FilterMode.Bilinear;}
+ void OnPreprocessTexture(){if(!assetPath.StartsWith("Assets/Resources/Original/"))return;var importer=(TextureImporter)assetImporter;importer.textureType=TextureImporterType.Default;importer.mipmapEnabled=false;importer.alphaIsTransparency=true;importer.maxTextureSize=8192;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.filterMode=FilterMode.Bilinear;}
 }
 public static class GxdlSetup {
  [MenuItem("GXDL/Prepare Game")]

@@ -55,7 +55,7 @@ public partial class GxdlGame {
   Art(GuxuItemIcons.Get("resource-dust"),p,65,554,42,42);Txt("升级消耗 "+cost+" 灵尘   /   拥有 "+Rules.Save.coins,p,122,554,500,42,24,ink,TextAnchor.MiddleLeft).name="Appraisal Cost";
   var upgrade=SealButton(capped?"已达本地版本上限":Rules.Save.coins<cost?"灵尘不足":"升级鉴宝台",p,135,623,410,68,()=>{if(!Rules.UpgradeTree()){Home();TreeUpgrade();Notify("灵尘不足或已达上限");return;}Rules.Store();Home();TreeUpgrade();Notify("鉴宝台升级成功");},true);upgrade.name="Appraisal Upgrade";upgrade.interactable=Rules.CanUpgradeTree;
  }
- void ShowCodex(){
+ public void ShowCodex(){
   if(busy)return;auto=false;
   if(ShowCodexPrefab())return;
   var p=OpenModal("遗宝图鉴 · 五品质三阶",760);
@@ -72,13 +72,12 @@ public partial class GxdlGame {
   var page=OpenScreen<Gxdl.Modules.CodexView>(Gxdl.Modules.UiScreens.Codex);
   if(page==null)return false;
   CloseModal();
-  // 旧图鉴的关闭只是收起弹窗，prefab 版按同一语义收页。
-  if(page.Back)page.Back.onClick.RemoveAllListeners();
-  if(page.Back)page.Back.onClick.AddListener(CloseScreen);
-  page.BindCallbacks(ShowTierTable,ShowTierTable);
+  // 顶部返回回到主界面；品质表的返回只收起表格。
+  if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(Home);}
+  if(page.CloseTable){page.CloseTable.onClick.RemoveAllListeners();page.CloseTable.onClick.AddListener(()=>page.ShowTable(false));}
+  page.BindCallbacks(ShowTierTable,null);
   page.ApplyEntries(CodexSnapshot());
-  // 品质表默认收起：空行集让 15 行按钮全部隐藏，等同旧页面的未展开状态。
-  page.ApplyTable("", "", null);
+  page.ShowTable(false);
   return true;
  }
  // 12 个部位名与图标来自静态配置，与旧页面同源。
@@ -97,6 +96,12 @@ public partial class GxdlGame {
   return result;
  }
  void ShowTierTable(int slot){
+  var page=activeModule as Gxdl.Modules.CodexView;
+  if(page!=null){
+   page.ApplyTable(EquipmentTiers.Names[slot]+" · 品质数据","按当前部位 · 遗域等级 "+(Rules.Save.gear[slot].lootBand+1)+" 计算，含部位权重",CodexTierRows(slot));
+   page.ShowTable(true);
+   return;
+  }
   var p=OpenModal(EquipmentTiers.Names[slot]+" · 品质数据",850);
   Txt("按当前部位 · 遗域等级 "+(Rules.Save.gear[slot].lootBand+1)+" 计算，含部位权重",p,45,88,590,24,18,ink);
   string[] headers={"品质 / 阶级","攻击力","生命值","防御力"};float[] xs={60,250,390,530};float[] widths={175,125,125,105};

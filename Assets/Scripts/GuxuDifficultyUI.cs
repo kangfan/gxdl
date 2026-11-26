@@ -22,11 +22,13 @@ public partial class GxdlGame {
   int lastOpen=0;for(int i=1;i<=10;i++)if(GuxuStageRules.CanEnter(Stages.Dungeon(kind,i),Rules.Save))lastOpen=i;
   int selected=difficultySelections[kind];var tiers=new Gxdl.Modules.DungeonDetailView.TierNodeState[10];
   for(int t=1;t<=10;t++)tiers[t-1]=new Gxdl.Modules.DungeonDetailView.TierNodeState{Unlocked=GuxuStageRules.CanEnter(Stages.Dungeon(kind,t),Rules.Save),Cleared=t<=Rules.Save.dungeonClears[kind],Selected=t==selected};
-  if(page.Back)page.Back.onClick.AddListener(ShowDungeons);
+  if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(ShowDungeons);}
   // 奖励记录入口与新页同一口径（dungeon 源）。
-  if(page.History)page.History.onClick.AddListener(()=>ShowRewardHistory("dungeon",0));
-  page.BindTierCallbacks(SelectDifficulty);page.BindChallenge(()=>ShowBattlePrep(Stages.Dungeon(kind,selected)));
-  page.BindSweep(()=>{var stage=Stages.Dungeon(kind,selected);if(GuxuStageRules.Sweep(Rules,stage,DateTime.UtcNow,out var paid)){string id=Rules.LastRewardReceipt.id;Rules.Store();ShowDungeon(kind);ShowRewardReceipt(id);}else{ShowDungeon(kind);Notify("需先通关且有剩余收益次数");}});
+  if(page.History){page.History.onClick.RemoveAllListeners();page.History.onClick.AddListener(()=>ShowRewardHistory("dungeon",0));}
+  page.BindTierCallbacks(SelectDifficulty);
+  // 点击时再取当前选择，避免捕获打开页面时的旧难度。
+  page.BindChallenge(()=>ShowBattlePrep(Stages.Dungeon(kind,difficultySelections[kind])));
+  page.BindSweep(()=>{int tier=difficultySelections[kind];var stage=Stages.Dungeon(kind,tier);if(GuxuStageRules.Sweep(Rules,stage,DateTime.UtcNow,out var paid)){string id=Rules.LastRewardReceipt.id;Rules.Store();ShowDungeon(kind);ShowRewardReceipt(id);}else{ShowDungeon(kind);Notify("需先通关且有剩余收益次数");}});
   page.Apply(new Gxdl.Modules.DungeonDetailView.DetailHeader{Name=GuxuStageRules.DungeonNames[kind],Attempts="今日剩余 "+(3-Rules.Save.dungeonClaims[kind])+" 次 · 失败不扣次数",ShowHistory=true,
    LockBottom=lastOpen<10?(lastOpen==0?808:(difficultyPlatforms[lastOpen-1].y+difficultyPlatforms[lastOpen].y)*.5f):0f},tiers);
   page.ApplyDetail(DifficultyDetailContent(kind,selected));return true;
@@ -70,6 +72,8 @@ public partial class GxdlGame {
  }
  void SelectDifficulty(int tier){
   difficultySelections[difficultyKind]=tier;
+  var detail=activeModule as Gxdl.Modules.DungeonDetailView;
+  if(detail!=null){detail.Select(tier);detail.ApplyDetail(DifficultyDetailContent(difficultyKind,tier));return;}
   var prefab=activeModule as Gxdl.Modules.DifficultyView;
   if(prefab!=null){prefab.SetSelected(tier);prefab.FocusTier(tier);prefab.ApplyDetail(DifficultyViewDetail(difficultyKind,tier));return;}
   foreach(Transform child in difficultyScroll.content){var ring=child.Find("Difficulty Selection");if(ring)ring.gameObject.SetActive(child.name=="Difficulty Node "+tier);}DrawDifficultySelection();

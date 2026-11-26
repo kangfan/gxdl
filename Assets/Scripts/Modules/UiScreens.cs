@@ -31,13 +31,17 @@ namespace Gxdl.Modules
         public const string Residence = Root + "ResidenceView";
         public const string Companion = Root + "CompanionView";
         public const string Loading = Root + "LoadingView";
+        public const string Shop = Root + "ShopView";
+        public const string Rank = Root + "RankView";
+        public const string Bag = Root + "BagView";
 
         /// <summary>全部界面路径，供生成器批量生成与自检遍历。</summary>
         public static readonly string[] All =
         {
             Login, Home, WorldMap, ChapterMap, Dungeons, DungeonDetail, Tower,
             GrowthHub, Talents, Gems, Forge, Loadout, Codex, BattlePrep,
-            BattleHud, Settlement, Difficulty, Social, Residence, Companion, Loading
+            BattleHud, Settlement, Difficulty, Social, Residence, Companion, Loading,
+            Shop, Rank
         };
 
         /// <summary>从 Resources 路径还原界面标识，用于日志与埋点。</summary>

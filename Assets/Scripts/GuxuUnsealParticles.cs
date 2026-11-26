@@ -20,30 +20,40 @@ public sealed partial class GuxuAnimation {
     runes.rectTransform.anchoredPosition=hand;runes.SetState(p,0,t);
     if(t>=emit){float a=t*18;var d=new Vector3(Mathf.Cos(a),Mathf.Sin(a),0);particles.EmitWorld(characterMotion.HandWorld-layer.TransformVector(d*38),d*95,new Vector2(22,45),new Color(1,.88f,.5f,.9f),.38f,t*200);emit+=.025f;}yield return null;
    }
+   if(!Valid(ticket))yield break;
    Phase="seal";characterMotion.MarkCastRelease();ReleaseAt=Time.time;Vector2 launch=CharacterHand();
    // The throw is flat, so the seal leaves on a level line and only settles onto the stone at the end;
    // a high arc would fight the horizontal arm action.
    Vector2 control=launch+Vector2.right*(hit.x-launch.x)*.72f+Vector2.up*Mathf.Min(26f,(hit.y-launch.y)*.35f);
    emit=0;charge.gameObject.SetActive(false);
+   bool sequenceFracture=stoneAnimation&&stoneAnimation.BeginFracture();
    for(float t=0;t<CastFlight;t+=Time.deltaTime){if(!Valid(ticket))yield break;float p=t/CastFlight;seal.color=Color.white;SealPose(seal,launch,control,hit,p);
+    if(sequenceFracture)stoneAnimation.ShowFractureLeadIn(p);
     // The runes leave the palm on the release frame and ride the same arc as the seal, then burn out on contact.
     runes.rectTransform.anchoredPosition=Curve(launch,control,hit,p);runes.SetState(1,p,t);
     if(t>=emit){particles.EmitWorld(seal.transform.position,Vector3.left*25,new Vector2(30,60),new Color(1,.81f,.3f,.9f),.38f,-35);emit+=.018f;}yield return null;
    }
+   if(!Valid(ticket))yield break;
    seal.rectTransform.anchoredPosition=hit;RuneContactAt=Time.time;FractureAt=RuneContactAt;Phase="fracture";seal.gameObject.SetActive(false);runes.gameObject.SetActive(false);ContactParticles(hit);
-   var pieces=SplitStone();var origins=new Vector2[pieces.Length];for(int i=0;i<pieces.Length;i++)origins[i]=pieces[i].rectTransform.anchoredPosition;stone.enabled=false;
+   if(sequenceFracture)stoneAnimation.ShowFractureImpact(0);
+   var pieces=sequenceFracture?System.Array.Empty<GuxuStoneShard>():SplitStone();var origins=new Vector2[pieces.Length];for(int i=0;i<pieces.Length;i++)origins[i]=pieces[i].rectTransform.anchoredPosition;
+   if(!sequenceFracture)stone.enabled=false;
    var relic=SpriteImage("Revealed Relic",relicSprite,hit,new Vector2(150,150));relic.color=Color.clear;
-   for(float t=0;t<.58f;t+=Time.deltaTime){if(!Valid(ticket))yield break;
+   float fractureDuration=sequenceFracture?Mathf.Max(.58f,stoneAnimation.FractureImpactDuration):.58f;
+   for(float t=0;t<fractureDuration;t+=Time.deltaTime){if(!Valid(ticket))yield break;
+    if(sequenceFracture)stoneAnimation.ShowFractureImpact(t);
     for(int i=0;i<pieces.Length;i++){float age=Mathf.Max(0,t-i%4*.009f);var r=pieces[i].rectTransform;r.anchoredPosition=origins[i]+FragmentTravel((origins[i]-hit).normalized,i,age);r.localEulerAngles=new Vector3(0,0,(i%2==0?-1:1)*(80+i*37%190)*age);r.localScale=Vector3.one*(1-.42f*Mathf.Clamp01(age/.65f));pieces[i].color=new Color(.90f,.87f,.8f,1-Mathf.SmoothStep(0,1,(t-.34f)/.32f));}
     halo.color=new Color(1,.88f,.5f,Mathf.Clamp01(1-t/.22f)*.7f);halo.rectTransform.localScale=Vector3.one*(1+t);
-    relic.color=new Color(1,1,1,Mathf.SmoothStep(0,1,(t-.18f)/.32f));relic.rectTransform.localScale=Vector3.one*Mathf.Lerp(.55f,1,Mathf.SmoothStep(0,1,t/.5f));relic.rectTransform.anchoredPosition=hit+Vector2.up*20*Mathf.Clamp01(t/.58f);yield return null;
+    relic.color=new Color(1,1,1,Mathf.SmoothStep(0,1,(t-.18f)/.32f));relic.rectTransform.localScale=Vector3.one*Mathf.Lerp(.55f,1,Mathf.SmoothStep(0,1,t/.5f));relic.rectTransform.anchoredPosition=hit+Vector2.up*(20*Mathf.Clamp01(t/.58f)+6*Mathf.Sin(t*12f));yield return null;
    }
-   // The arm clip runs 1.40s; release plus flight plus the fracture beat lands inside it, so the hold is
-   // a fixed beat and the recovery wait below keeps the pose honest instead of padding to a frame clock.
+   if(!Valid(ticket))yield break;
+   stone.enabled=false;
+   // Finish every fracture frame before the reveal hold; skip only shortens the hold below.
    Phase="reveal";float hold=.27f+(quality>=4?.56f:0);
-   for(float t=0;t<hold&&!skip;t+=Time.deltaTime){if(!Valid(ticket))yield break;halo.color=new Color(glow.r,glow.g,glow.b,.20f);halo.rectTransform.localScale=Vector3.one*(.75f+.03f*Mathf.Sin(t*5));yield return null;}
+   for(float t=0;t<hold&&!skip;t+=Time.deltaTime){if(!Valid(ticket))yield break;halo.color=new Color(glow.r,glow.g,glow.b,.20f);halo.rectTransform.localScale=Vector3.one*(.75f+.03f*Mathf.Sin(t*5));if(relic)relic.rectTransform.anchoredPosition=hit+Vector2.up*(20+6*Mathf.Sin((fractureDuration+t)*12f));yield return null;}
    // A rare-loot skip may shorten only the extra hold, never cut the character's recovery pose.
    while(characterMotion.State==GuxuCharacterMotion.ActionState.Unseal){if(!Valid(ticket))yield break;yield return null;}
+   if(!Valid(ticket))yield break;
    completed=true;
   }finally{if(this&&generation==ticket){Cleanup();Restore();if(completed&&stone)stone.enabled=false;IsPlaying=false;Phase="idle";skip=false;}}
  }

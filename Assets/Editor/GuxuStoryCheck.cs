@@ -33,5 +33,6 @@ public sealed class GuxuStoryTextureImport : AssetPostprocessor {
   importer.textureType=TextureImporterType.Default;importer.sRGBTexture=true;
   importer.maxTextureSize=2048;importer.mipmapEnabled=false;importer.wrapMode=TextureWrapMode.Clamp;
   importer.textureCompression=TextureImporterCompression.Uncompressed;importer.filterMode=FilterMode.Bilinear;
+  GuxuFinalArtImporter.ApplyBuildCompression(importer);
  }
 }

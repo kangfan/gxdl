@@ -15,10 +15,10 @@ public sealed partial class GuxuAnimation : MonoBehaviour {
  public static readonly Color[] QualityColors = {Color.white,new Color(.40f,.86f,.45f),new Color(.28f,.65f,1),new Color(.75f,.40f,1),new Color(1,.65f,.19f)};
  Image character,stone;
  GuxuCharacterMotion characterMotion;
+ GuxuStoneAnimation stoneAnimation;
  RectTransform layer;
- Vector2 characterOrigin,stoneOrigin;
- Vector3 characterScale,stoneScale;
- Quaternion characterRotation,stoneRotation;
+ Vector3 stoneScale;
+ Quaternion stoneRotation;
  Color characterColor,stoneColor;
  int generation;
  bool skip;
@@ -26,10 +26,9 @@ public sealed partial class GuxuAnimation : MonoBehaviour {
  public float ReleaseAt {get;private set;}=-1;
  public float RuneContactAt {get;private set;}=-1;
  public float FractureAt {get;private set;}=-1;
- public bool StoneVisible=>stone&&stone.enabled&&stone.color.a>0;
- // The hand is drawn up to the chest first, then punched forward from there: the palm settles in front
- // of the ribcage at 0.34s and leaves the fingers level at 0.44s.
- public const float CastRelease=.44f;
+ public bool StoneVisible=>stone&&stone.sprite&&stone.enabled&&stone.color.a>0&&(!stoneAnimation||!stoneAnimation.HasFractured);
+ // Release timing comes from the selected Home Spine clip's authored palm pose.
+ public const float CastRelease=GuxuCharacterMotion.HomeCastRelease;
  public const float CastFlight=.30f;
  public static float FullRelease=>CastRelease;
  public static float FullImpact=>CastRelease+CastFlight;
@@ -38,28 +37,25 @@ public sealed partial class GuxuAnimation : MonoBehaviour {
  public void Bind(Image characterImage,Image stoneImage,RectTransform effectsParent){
   Cancel();character=characterImage;stone=stoneImage;layer=effectsParent;
   if(!character||!stone||!layer)throw new ArgumentException("Animation requires separate character, stone and effect layers.");
-  characterOrigin=character.rectTransform.anchoredPosition;stoneOrigin=stone.rectTransform.anchoredPosition;
-  characterScale=character.rectTransform.localScale;stoneScale=stone.rectTransform.localScale;
-  characterRotation=character.rectTransform.localRotation;stoneRotation=stone.rectTransform.localRotation;
+  stoneAnimation=stone.GetComponent<GuxuStoneAnimation>();if(!stoneAnimation)stoneAnimation=stone.gameObject.AddComponent<GuxuStoneAnimation>();
+  stoneAnimation.Initialize();
+  stoneScale=stone.rectTransform.localScale;
+  stoneRotation=stone.rectTransform.localRotation;
   characterColor=character.color;stoneColor=stone.color;
   stoneVisibleAtRest=stone.enabled;
   characterMotion=character.GetComponent<GuxuCharacterMotion>();if(!characterMotion)characterMotion=character.gameObject.AddComponent<GuxuCharacterMotion>();
   characterMotion.UseHomePose=true;
- }
- void Update(){
-  if(IsPlaying||!character||!stone)return;
-  // The monolith is grounded; movement is local to cloth/hair rather than scaling the whole figure.
-  stone.rectTransform.anchoredPosition=stoneOrigin;
  }
  public void SkipReveal(){skip=true;}
  public void Cancel(){generation++;StopAllCoroutines();Cleanup();Restore();IsPlaying=false;Phase="idle";skip=false;}
  void OnDisable(){Cancel();}
  void Restore(){
   if(characterMotion)characterMotion.ResetPose();
-  if(character){character.rectTransform.anchoredPosition=characterOrigin;character.rectTransform.localScale=characterScale;character.rectTransform.localRotation=characterRotation;character.color=characterColor;}
-  if(stone){stone.rectTransform.anchoredPosition=stoneOrigin;stone.rectTransform.localScale=stoneScale;stone.rectTransform.localRotation=stoneRotation;stone.color=stoneColor;stone.enabled=stoneVisibleAtRest;}
+  if(stoneAnimation)stoneAnimation.ResetIdle();
+  if(character)character.color=characterColor;
+  if(stone){stone.rectTransform.localScale=stoneScale;stone.rectTransform.localRotation=stoneRotation;stone.color=stoneColor;stone.enabled=stoneVisibleAtRest&&stone.sprite;}
  }
- void BeginStonePresentation(){stoneVisibleAtRest=stone.enabled;Restore();stone.enabled=true;ReleaseAt=RuneContactAt=FractureAt=-1;}
+ void BeginStonePresentation(){if(stoneAnimation&&!stoneAnimation.IsReady)stoneAnimation.Initialize();stoneVisibleAtRest=stone.enabled;Restore();stone.enabled=stoneAnimation&&stoneAnimation.IsReady;ReleaseAt=RuneContactAt=FractureAt=-1;}
  void Cleanup(){foreach(var go in temporary)if(go){go.SetActive(false);Destroy(go);}temporary.Clear();}
  bool Valid(int ticket)=>this&&isActiveAndEnabled&&generation==ticket&&character&&stone&&layer;
 
@@ -82,7 +78,9 @@ public sealed partial class GuxuAnimation : MonoBehaviour {
  GuxuRuneRing Ring(string name,Vector2 pos,Vector2 size,Color color){var r=Node(name,pos,size);var ring=r.gameObject.AddComponent<GuxuRuneRing>();ring.color=color;ring.raycastTarget=false;return ring;}
  GuxuSoftVfx Soft(string name,Vector2 pos,Vector2 size,Color color,bool smoke=false,float seed=0){var r=Node(name,pos,size);var effect=r.gameObject.AddComponent<GuxuSoftVfx>();effect.Smoke=smoke;effect.Seed=seed;effect.color=color;effect.raycastTarget=false;return effect;}
  GuxuStoneShard[] SplitStone(){
-  var sprite=stone.sprite;if(!sprite)throw new InvalidOperationException("Stone sprite is required for fracture.");
+  var sprite=stoneAnimation?stoneAnimation.CurrentSprite:stone.sprite;
+  // A missing presentation asset must not strand the already-created pending reward.
+  if(!sprite){Debug.LogWarning("Stone idle frame unavailable; revealing relic without fragments.",this);return Array.Empty<GuxuStoneShard>();}
   Vector2 size=stone.rectTransform.rect.size;float fit=Mathf.Min(size.x/sprite.rect.width,size.y/sprite.rect.height);size=new Vector2(sprite.rect.width,sprite.rect.height)*fit;
   Vector2 center=Center(stone.rectTransform);var triangles=FractureTriangles();var pieces=new GuxuStoneShard[triangles.Length];
   for(int i=0;i<pieces.Length;i++){var triangle=triangles[i];Vector2 centroid=Vector2.zero;foreach(var point in triangle)centroid+=point;centroid/=triangle.Length;

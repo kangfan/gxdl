@@ -5,12 +5,26 @@ namespace Gxdl {
 public static class GuxuSpineAssets {
  static SkeletonDataAsset data;
  static Material material;
- public static Material Material {get{Ensure();return material;}}
+ static SkeletonDataAsset homeData;
+ public static Material Material {get{
+  if(!material)material=Resources.Load<Material>("Game/Guxu/SpineHero/SkeletonGraphic");
+  if(!material)throw new InvalidOperationException("Missing Spine UI material.");
+  return material;
+ }}
  public static SkeletonDataAsset Data {get{Ensure();return data;}}
+ public static SkeletonDataAsset HomeData {get{
+  if(homeData)return homeData;
+  var asset=Resources.Load<SkeletonDataAsset>("Game/Guxu/Final/HomeHero/zhujue_01_SkeletonData");
+  var skeleton=asset?asset.GetSkeletonData(false):null;
+  if(skeleton==null)throw new InvalidOperationException("Missing Home hero Spine data.");
+  foreach(var name in new[]{"idle",GuxuCharacterMotion.HomeCastClip})if(skeleton.FindAnimation(name)==null)throw new InvalidOperationException("Missing Home hero animation: "+name);
+  foreach(var name in new[]{"bone18","bone21","bone24"})if(skeleton.FindBone(name)==null)throw new InvalidOperationException("Missing Home hero anchor bone: "+name);
+  homeData=asset;return homeData;
+ }}
  static void Ensure(){
   if(data && data.GetSkeletonData(true)!=null)return;
   const string path="Game/Guxu/Final/Hero/";
-  material=Resources.Load<Material>("Game/Guxu/SpineHero/SkeletonGraphic");
+  material=Material;
   var texture=Resources.Load<Texture2D>(path+"hero");
   var parts=Resources.Load<Texture2D>(path+"unseal-parts");
   var home=Resources.Load<Texture2D>(path+"home-hero");

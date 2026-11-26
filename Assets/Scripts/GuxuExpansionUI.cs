@@ -72,17 +72,12 @@ public partial class GxdlGame {
  }
  // prefab 版世界地图。宿主未就绪或 prefab 缺失时返回 false，回退旧构建。
  bool ShowWorldMapPrefab(){
-  var bootstrap=Gxdl.Core.GameBootstrap.Instance;
-  if(bootstrap==null||bootstrap.UiModules==null)return false;
-  var module=bootstrap.UiModules.Open(Gxdl.Modules.UiScreens.WorldMap);
-  var map=module as Gxdl.Modules.WorldMapView;
+  if(Gxdl.Core.GameBootstrap.Instance==null||Gxdl.Core.GameBootstrap.Instance.UiModules==null)return false;
+  var map=OpenScreen<Gxdl.Modules.WorldMapView>(Gxdl.Modules.UiScreens.WorldMap);
   if(map==null)return false;
-  var page=(RectTransform)map.transform;
-  page.SetParent(view.parent,false);view.gameObject.SetActive(false);
-  FitPage(page);
-  if(map.Back)map.Back.onClick.AddListener(Home);
-  if(map.Dungeons)map.Dungeons.onClick.AddListener(ShowDungeons);
-  if(map.Tower)map.Tower.onClick.AddListener(ShowTower);
+  if(map.Back){map.Back.onClick.RemoveAllListeners();map.Back.onClick.AddListener(Home);}
+  if(map.Dungeons){map.Dungeons.onClick.RemoveAllListeners();map.Dungeons.onClick.AddListener(ShowDungeons);}
+  if(map.Tower){map.Tower.onClick.RemoveAllListeners();map.Tower.onClick.AddListener(ShowTower);}
   map.BindChapterCallbacks(index=>ShowChapter(index));
   map.Apply(MapSnapshot(map));
   return true;

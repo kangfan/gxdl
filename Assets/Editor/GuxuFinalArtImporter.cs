@@ -7,10 +7,22 @@ public sealed class GuxuFinalArtImporter:AssetPostprocessor {
  [Serializable] sealed class Entry {public string key;public int x,y,width,height;}
  void OnPreprocessTexture(){
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/UI/")){
-   var legacy=(TextureImporter)assetImporter;legacy.mipmapEnabled=false;legacy.npotScale=TextureImporterNPOTScale.None;legacy.wrapMode=TextureWrapMode.Clamp;legacy.maxTextureSize=System.IO.Path.GetFileName(assetPath).StartsWith("button-")?512:1024;return;
+   var legacy=(TextureImporter)assetImporter;legacy.mipmapEnabled=false;legacy.npotScale=TextureImporterNPOTScale.None;legacy.wrapMode=TextureWrapMode.Clamp;legacy.maxTextureSize=System.IO.Path.GetFileName(assetPath).StartsWith("button-")?512:1024;ApplyBuildCompression(legacy);return;
+  }
+  // 两张整页背景（古塔底图 / 地图底图）不在 Final/Expansion/Vfx 目录内，单独纳入压缩。
+  if(assetPath=="Assets/Resources/Game/Guxu/background.png"||assetPath=="Assets/Resources/Game/Guxu/Map/background.png"){
+   var page=(TextureImporter)assetImporter;page.mipmapEnabled=false;page.npotScale=TextureImporterNPOTScale.None;page.maxTextureSize=2048;ApplyBuildCompression(page);return;
   }
   if(!assetPath.StartsWith("Assets/Resources/Game/Guxu/Final/")&&!assetPath.StartsWith("Assets/Resources/Game/Guxu/Expansion/")&&!assetPath.StartsWith("Assets/Resources/Game/Guxu/Vfx/"))return;
   var t=(TextureImporter)assetImporter;t.textureType=TextureImporterType.Default;t.alphaSource=TextureImporterAlphaSource.FromInput;t.alphaIsTransparency=true;t.mipmapEnabled=false;t.npotScale=TextureImporterNPOTScale.None;t.maxTextureSize=4096;t.textureCompression=TextureImporterCompression.Uncompressed;t.wrapMode=TextureWrapMode.Clamp;
+  if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Expansion/UI/HomeReskin/")){
+   t.textureType=TextureImporterType.Sprite;t.spriteImportMode=SpriteImportMode.Single;t.maxTextureSize=1024;t.spritePixelsPerUnit=100;
+  }
+  // 洞府/背包换皮切片：prefab 生成器按 Sprite 引用，必须以 Sprite 类型导入。
+  string lowerAsset=assetPath.ToLowerInvariant();
+  if(lowerAsset.Contains("/residence-")||lowerAsset.Contains("/relic-")||lowerAsset.Contains("/bag-")||lowerAsset.Contains("/gear-detail-")||lowerAsset.Contains("/gear-btn-")||lowerAsset.Contains("/shop-")||lowerAsset.Contains("/codex-")||lowerAsset.Contains("/growth-")||lowerAsset.Contains("/ruins-")||lowerAsset.Contains("/prep-")){
+   t.textureType=TextureImporterType.Sprite;t.spriteImportMode=SpriteImportMode.Single;t.spritePixelsPerUnit=100;t.maxTextureSize=256;
+  }
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Vfx/"))t.maxTextureSize=assetPath.StartsWith("Assets/Resources/Game/Guxu/Vfx/Actions/")?1024:256;
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Vfx/Actions/Video/")){
    t.textureCompression=TextureImporterCompression.CompressedHQ;t.compressionQuality=100;
@@ -20,6 +32,10 @@ public sealed class GuxuFinalArtImporter:AssetPostprocessor {
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Expansion/UI/ui23-"))t.maxTextureSize=assetPath.EndsWith("ui23-panel-modal.png")?512:256;
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Expansion/UI/chapter-"))t.maxTextureSize=assetPath.EndsWith("chapter-map-segment.png")?1024:512;
   string name=Path.GetFileNameWithoutExtension(assetPath);
+  if(name=="ui-bg-fullscreen"){t.textureType=TextureImporterType.Sprite;t.spriteImportMode=SpriteImportMode.Single;t.spritePixelsPerUnit=100;t.maxTextureSize=2048;}
+  if(name=="shop-card"||name=="shop-footer-bar"||name=="codex-panel"||name=="codex-wide-card"||name=="codex-banner"||name.StartsWith("growth-card")||name.StartsWith("ruins-ch-")||name=="ruins-nav-bar"||name=="ruins-divider"||name=="prep-card"||name=="prep-divider"||name=="prep-title"){
+   if(t.maxTextureSize<1024)t.maxTextureSize=1024;
+  }
   if(name.StartsWith("talent-")&&name.Length==9&&char.IsDigit(name[7])&&char.IsDigit(name[8])||name.StartsWith("feedback-neutral-"))t.maxTextureSize=128;
   if(name.StartsWith("home-entry-"))t.maxTextureSize=256;
   if(assetPath.StartsWith("Assets/Resources/Game/Guxu/Expansion/Enemies/chapter-"))t.maxTextureSize=512;
@@ -32,8 +48,22 @@ public sealed class GuxuFinalArtImporter:AssetPostprocessor {
   if(name=="difficulty-path")t.maxTextureSize=1024;
   if(name=="difficulty-node")t.maxTextureSize=256;
   if(name=="tower-tier"||name=="loadout-altar")t.maxTextureSize=512;
+ if(name.StartsWith("residence-btn-"))t.maxTextureSize=512;
+ if(name.StartsWith("relic-btn-"))t.maxTextureSize=256;
+ if(name=="relic-close")t.maxTextureSize=128;
+ if(name=="residence-panel"||name=="relic-modal-panel")t.maxTextureSize=1024;
+ if(name=="residence-bg")t.maxTextureSize=2048;
+ if(name=="residence-window"||name=="residence-plaque-title")t.maxTextureSize=512;
+ if(name=="residence-plaque"||name=="residence-divider"||name=="residence-cloud")t.maxTextureSize=256;
+ if(name=="residence-close")t.maxTextureSize=128;
+ if(name=="bag-panel"||name=="gear-detail-panel")t.maxTextureSize=1024;
+ if(name=="bag-slot"||name=="bag-badge"||name=="bag-divider"||name=="gear-detail-header")t.maxTextureSize=128;
+ if(name=="bag-close"||name=="gear-detail-close")t.maxTextureSize=128;
+ if(name.StartsWith("bag-btn-")||name.StartsWith("gear-btn-")||name=="bag-title"||name=="bag-header"||name=="gear-detail-iconbox")t.maxTextureSize=256;
   if(name.StartsWith("combat-")||name.StartsWith("settlement-")||name=="handbook-panel"||name.StartsWith("dungeon-portal-"))t.maxTextureSize=512;
   if(name=="combat-skill-seal"||name=="combat-bar-frame"||name.StartsWith("state-")||name=="handbook-stat-tag"||name=="handbook-residence-insert")t.maxTextureSize=256;
+  // Video 帧在上面已单独设 ASTC 1024/质量 100，不再覆盖。
+  if(!assetPath.StartsWith("Assets/Resources/Game/Guxu/Vfx/Actions/Video/"))ApplyBuildCompression(t);
   if(assetPath!="Assets/Resources/"+Gxdl.GuxuItemIcons.Path+".png")return;
   var atlas=JsonUtility.FromJson<Atlas>(File.ReadAllText(System.IO.Path.ChangeExtension(assetPath,"json")));
   bool modern=atlas.width==903&&atlas.height==903&&atlas.entries.Length==90;
@@ -49,6 +79,13 @@ public sealed class GuxuFinalArtImporter:AssetPostprocessor {
 #pragma warning disable CS0618
   t.spritesheet=sheet;
 #pragma warning restore CS0618
+ }
+ // Default 仍保留 Uncompressed 以便编辑器像素级审图；Android 包统一 ASTC 6x6，把 RGBA32 的包体压到约 1/5。
+ // 运行时没有任何 GetPixels/ReadPixels，压缩对玩法无影响；分辨率上限沿用各自规则，不额外降采样。
+ internal static void ApplyBuildCompression(TextureImporter t){
+  var android=t.GetPlatformTextureSettings("Android");
+  android.overridden=true;android.maxTextureSize=t.maxTextureSize;android.format=TextureImporterFormat.ASTC_6x6;android.compressionQuality=50;android.allowsAlphaSplitting=false;
+  t.SetPlatformTextureSettings(android);
  }
 }
 

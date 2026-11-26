@@ -1,10 +1,10 @@
 {
-  "unity_port": 13918,
-  "stream_port": 14433,
+  "unity_port": 4042,
+  "stream_port": 4117,
   "created_date": "2026-11-18T12:05:11.932Z",
   "project_path": "G:/demos/gxdl/Assets",
   "reloading": false,
   "reason": "ready",
-  "seq": 550660,
-  "last_heartbeat": "2026-11-22T11:06:23.421Z"
+  "seq": 444542,
+  "last_heartbeat": "2026-11-26T02:08:52.859Z"
 }

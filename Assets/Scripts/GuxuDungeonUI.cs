@@ -26,7 +26,7 @@ public partial class GxdlGame {
     Attempts=unlocked?"今日剩余 "+(3-Rules.Save.dungeonClaims[k])+" 次":"尚未解锁",
     Unlocked=unlocked,AttemptsExhausted=unlocked&&Rules.Save.dungeonClaims[k]>=3};
   }
-  if(page.Back)page.Back.onClick.AddListener(Home);
+  if(page.Back){page.Back.onClick.RemoveAllListeners();page.Back.onClick.AddListener(Home);}
   page.BindGateCallbacks(k=>ShowDungeon(k));page.BindTower(ShowTower);page.BindGrowth(ShowGrowthHub);page.Apply(gates);
   return true;
  }

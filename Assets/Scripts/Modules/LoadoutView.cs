@@ -61,6 +61,8 @@ namespace Gxdl.Modules
             {
                 var card = snapshot.Skills[i];
                 Set(skillNames, i, card.Name);
+                if (skillIcons != null && i < skillIcons.Length && skillIcons[i] != null)
+                    skillIcons[i].sprite = GuxuUiArt.BattlePrepSkill(i);
                 Select(skillRings, i, i == selected);
                 Select(skillEquippedFlags, i, card.Equipped);
             }
@@ -70,6 +72,8 @@ namespace Gxdl.Modules
                 : default(SkillCell);
             if (selectedName != null) selectedName.text = shown.Name;
             if (selectedDetail != null) selectedDetail.text = shown.Detail;
+            if (selectedIcon != null && skillIcons != null && skillIcons.Length > selected && skillIcons[selected] != null)
+                selectedIcon.sprite = skillIcons[selected].sprite;
             if (equipLabel != null) equipLabel.text = snapshot.EquipLabel;
             if (equipButton != null) equipButton.interactable = snapshot.CanEquip;
 

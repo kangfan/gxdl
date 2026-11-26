@@ -72,6 +72,21 @@ namespace Gxdl.Modules
             for (var i = 0; i < markerButtons.Length; i++) Bind(markerButtons[i].GetComponentInChildren<Text>(), i, handler);
         }
 
+        /// <summary>上一段 / 下一段翻页。</summary>
+        public void BindSegment(System.Action previous, System.Action next)
+        {
+            if (previousButton != null && previous != null)
+            {
+                previousButton.onClick.RemoveAllListeners();
+                previousButton.onClick.AddListener(() => previous());
+            }
+            if (nextButton != null && next != null)
+            {
+                nextButton.onClick.RemoveAllListeners();
+                nextButton.onClick.AddListener(() => next());
+            }
+        }
+
         void Bind(Text anchor, int index, System.Action<int> handler)
         {
             var button = anchor != null ? anchor.GetComponentInParent<Button>() : null;
@@ -170,6 +185,16 @@ namespace Gxdl.Modules
             var offset = Mathf.Clamp(top + index * step + 100f - viewportHeight * 0.72f, 0f, range);
             scroll.StopMovement();
             scroll.verticalNormalizedPosition = 1f - offset / range;
+        }
+
+        /// <summary>给十个楼层条目套真实阶梯美术，缺失时保留白色占位。</summary>
+        public void ApplyFloorSkin(Sprite art)
+        {
+            if (art == null || floorArts == null) return;
+            for (var i = 0; i < floorArts.Length; i++)
+            {
+                if (floorArts[i] != null) floorArts[i].sprite = art;
+            }
         }
 
         public struct FloorCell
